@@ -2,8 +2,13 @@ import { ContactSchema, InvitationSchema, UserSchema } from "../../schema";
 import * as InterFace from "../../interfaces";
 import { Helper } from "../../helpers";
 import { Op } from "sequelize";
+import { emitToSocket, io, socket, userStatus } from "../../helpers/socket/socket.helper";
 const { ResMsg, Utilities } = Helper;
+
+
 class ContactService {
+
+  
   public async fetchAll(): Promise<unknown> {
     const allUser = await ContactSchema.Read.findAll();
     if (!allUser) {
@@ -155,6 +160,11 @@ class ContactService {
       console.log("Already exist invite");
       await inviteExist?.destroy();
     }
+  
+    emitToSocket(sender.id.toString(),"notificationAccepted",`${reciever.firstName} ${reciever.lastName} (${reciever.email}) accepted your invite`)
+    emitToSocket(sender.id.toString(),"updateContacts");
+
+    
 
     return { success: true, data: isConnected };
   }
@@ -206,6 +216,8 @@ class ContactService {
       } else {
         // Create new entry
         console.log("outside");
+        emitToSocket(contact.id.toString(),"inviteNotifcation",`${existingUser.email} has invited you`)
+
         await InvitationSchema.Write.create({
           userId: userID,
           contactId: contact.id.toString(),
@@ -213,7 +225,7 @@ class ContactService {
         });
       }
     });
-    
+
     return { success: true };
   }
 
@@ -280,6 +292,7 @@ class ContactService {
       await isConnected.destroy();
     }
 
+    emitToSocket(reciever.id.toString(),"removeNotification",`${sender.email} has removed you from their contacts`)
     return { success: true };
   }
 }

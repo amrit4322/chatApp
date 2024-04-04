@@ -10,15 +10,7 @@ import { useSelector } from 'react-redux';
 
 
 function App() {
-  const data  = useSelector((state)=>state.user.user)
-  useEffect(()=>{
-    if(data?.id){
-    socket.emit("login",data?.id)
-    }
-    return ()=>{
-      socket.off("login",data?.id)
-    }
-  })
+  
   return <Routes />;
 };
 

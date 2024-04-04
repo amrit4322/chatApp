@@ -3,6 +3,7 @@ import { connect, useDispatch, useSelector } from 'react-redux';
 import { Navigate } from 'react-router-dom';
 import withRouter from "../../components/withRouter";
 import { logoutUser } from '../../redux/slice.auth';
+import { socket } from '../../helpers/socket';
 
 
 /**
@@ -17,6 +18,7 @@ const Logout = (props) => {
 
     useEffect(()=>{
       dispatch(logoutUser());
+      socket.disconnect();
     },[dispatch,props.router.navigate])
  
 

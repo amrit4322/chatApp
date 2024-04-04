@@ -22,7 +22,7 @@ import config from "../../../config";
 const  Profile=(props)=> {
   const [isOpen, setisOpen] = useState(false);
   const profile = props.user;
-  const currentImage = props.user.profilePath;
+  const currentImage = props.user?.profilePath ;
 
 
   const [isOpen1, setIsOpen1] = useState(true);

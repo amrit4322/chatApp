@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 // import userHelper from "./user.helper";
 import { UserInterFace, IExpressRequest } from "../../interfaces";
 import { Helper } from "../../helpers";
-const { Response: HelperResponse, ResMsg, Logger } = Helper;
+const { Response: HelperResponse, ResMsg } = Helper;
 
 class UserController {
   /**
@@ -20,8 +20,6 @@ class UserController {
         })
       );
     } catch (error: unknown) {
-      Logger.createLog("error", "error log in register", error);
-      console.log("Error", res, error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -44,7 +42,6 @@ class UserController {
         HelperResponse.createResponse(200, "login successful..!!", { result })
       );
     } catch (error: unknown) {
-      Logger.createLog("error", "error log in login", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -71,7 +68,6 @@ class UserController {
         })
       );
     } catch (error: unknown) {
-      Logger.createLog("error", "error log in updateUser", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -98,7 +94,6 @@ class UserController {
         })
       );
     } catch (error: unknown) {
-      Logger.createLog("error", "error log in changePassword", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -123,7 +118,6 @@ class UserController {
         })
       );
     } catch (error: unknown) {
-      Logger.createLog("error", "error log in forgotPassword", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -138,7 +132,6 @@ class UserController {
         HelperResponse.createResponse(200, "Fetch successful..!!", { result })
       );
     } catch (error: any) {
-      Logger.createLog("error", "error in fetching ", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -157,7 +150,7 @@ class UserController {
         })
       );
     } catch (error: any) {
-      Logger.createLog("error", "error in fetching user", error);
+      // Logger.createLog("error", "error in fetching user", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -183,7 +176,6 @@ class UserController {
         })
       );
     } catch (error: any) {
-      Logger.createLog("error", "error in fetching user", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -201,7 +193,6 @@ class UserController {
         })
       );
     } catch (error: any) {
-      Logger.createLog("error", "error in fetching user", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -221,7 +212,6 @@ class UserController {
           message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
         });
       } else {
-        Logger.createLog("error", "error in login ", error);
         return HelperResponse.sendError(res, {
           message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
         });
@@ -238,7 +228,7 @@ class UserController {
         HelperResponse.createResponse(200, "Signup successful..!!", { result })
       );
     } catch (error: any) {
-      Logger.createLog("error", "error in registering ", error);
+      // Logger.createLog("error", "error in registering ", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -252,7 +242,6 @@ class UserController {
         HelperResponse.createResponse(200, "Signup successful..!!", { result })
       );
     } catch (error: any) {
-      Logger.createLog("error", "error in registering ", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -270,7 +259,6 @@ class UserController {
         })
       );
     } catch (error: any) {
-      Logger.createLog("error", "error in registering ", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -286,7 +274,6 @@ class UserController {
         HelperResponse.createResponse(200, "Delete successful..!!", {})
       );
     } catch (error: any) {
-      Logger.createLog("error", "error in deleting ", error);
       return HelperResponse.sendError(res, {
         message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
       });
@@ -316,7 +303,6 @@ class UserController {
           })
       );
   } catch (error: any) {
-      Logger.createLog("error", "error log in uploadProfilePicture", error);
       return HelperResponse.sendError(res, {
           message: error.message || ResMsg.errors.SOMETHING_WENT_WRONG,
       });

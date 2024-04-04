@@ -3,36 +3,50 @@ import { Button, Input, InputGroup, UncontrolledTooltip } from "reactstrap";
 import API from "../../../helpers/api";
 import { useDispatch, useSelector } from "react-redux";
 import config from "../../../config";
-import { userNotification } from "../../../redux/slice.auth";
+import { userAccepted, userNotification, userUpdateContacts } from "../../../redux/slice.auth";
+import { socket } from "../../../helpers/socket";
+// import 'react-toastify/dist/ReactToastify.css';
+import { Bounce, ToastContainer, toast } from "react-toastify";
 
 const Invites = () => {
   const [contacts, setContacts] = useState([]);
+  const inviteAccepted = useSelector((state)=>state.user.inviteAccepted)
+  const notifications = useSelector((state) => state.user.notification);
   const apiInstance = new API();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.token);
   useEffect(() => {
     fetchContacts();
-  }, []);
+  
+  }, [notifications]);
+
+
 
   const fetchContacts = async () => {
     try {
       const response = await apiInstance.getWithToken(
         "/contact/fetchInvites",
         token
-        );
-        if (response.status) {
-          
+      );
+      if (response.status) {
         // console.log("fetchhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",response.message.data.length)
         setContacts(response.message.data);
-        dispatch(userNotification({
-          notification:response.message.data.length
-        }))
+        dispatch(
+          userNotification({
+            notification: response.message.data.length,
+          })
+        );
       }
     } catch (error) {
       console.error("Error fetching contacts:", error);
     }
   };
 
+  const removeNotification = (notificationId) => {
+    dispatch(userAccepted({
+      inviteAccepted: inviteAccepted.filter((item) => item.id !== notificationId)
+    }));
+  };
   const handleIgnore = (contactId) => {
     // Handle ignore action
   };
@@ -48,6 +62,14 @@ const Invites = () => {
       token
     );
     if (response.status) {
+      dispatch(userUpdateContacts({
+        updateContacts:true,
+      }))
+      setTimeout(()=>{
+        dispatch(userUpdateContacts({
+          updateContacts:false,
+        }))
+      },1000)
       fetchContacts();
     }
   };
@@ -69,7 +91,7 @@ const Invites = () => {
             />
           </InputGroup>
         </div>
-        {contacts ? (
+        {contacts && notifications > 0 ? (
           <div>
             <ul className="list-unstyled contact-list">
               {contacts?.map((contact) => (
@@ -136,6 +158,23 @@ const Invites = () => {
             <span>No new invites</span>
           </div>
         )}
+        <hr></hr>
+        {inviteAccepted?.length>0 && 
+        <div>
+          {inviteAccepted.map((item,id)=>
+          <div key={id} className="notification bg-light p-3 mb-3 d-flex justify-content-between align-items-center">
+          <span className="text-dark">{item}</span>
+          <button
+            className="btn btn-danger btn-sm"
+            onClick={() => removeNotification(item.id)}
+          >
+            Remove
+          </button>
+        </div>
+          )}
+          </div>}
+       
+       
       </div>
     </div>
   );

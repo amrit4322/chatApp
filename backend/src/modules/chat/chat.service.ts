@@ -167,7 +167,7 @@ class ChatService {
         }
       }
     });
-    console.log("ending fetchUSer", connectedUsers);
+    // console.log("ending fetchUSer", connectedUsers);
     return connectedUsers;
   }
 }

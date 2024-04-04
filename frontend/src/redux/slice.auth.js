@@ -12,6 +12,8 @@ const initialState = {
   activeChat: null,
   allUser: [],
   notification :0,
+  inviteAccepted:[],
+  updateContacts:false,
 };
 
 const userSlice = createSlice({
@@ -57,6 +59,12 @@ const userSlice = createSlice({
     userNotification: (state, action) => {
       state.notification = action.payload.notification;
     },
+    userAccepted: (state, action) => {
+      state.inviteAccepted = action.payload.inviteAccepted;
+    },
+    userUpdateContacts: (state, action) => {
+      state.updateContacts = action.payload.updateContacts;
+    },
 
     userAll: (state, action) => {
       state.allUser = action.payload.allUser;
@@ -74,6 +82,8 @@ const userSlice = createSlice({
       state.allUser = [];
       state.connectedUsers = [];
       state.notification = 0;
+      state.inviteAccepted = [];
+      state.updateContacts=false;
     },
   },
 });
@@ -91,6 +101,8 @@ export const {
   userChats,
   userGroups,
   userNotification,
+  userAccepted,
+  userUpdateContacts,
 } = userSlice.actions;
 
 export default userSlice.reducer;

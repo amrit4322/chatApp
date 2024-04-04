@@ -165,12 +165,12 @@ const UserChat = (props) => {
 
     //add message object to chat
     setchatMessages([...chatMessages, messageObj]);
-    socket.emit("message_send", messageObj, props.activeChat.id);
-    dispatch(
-      userChats({
-        chats: [...chatMessages, messageObj],
-      })
-    );
+    // socket.emit("message_send", messageObj, props.activeChat.id);
+    // dispatch(
+    //   userChats({
+    //     chats: [...chatMessages, messageObj],
+    //   })
+    // );
 
     // let copyallUsers = [...allUsers];
     // copyallUsers[props.active_user].messages = [...chatMessages, messageObj];

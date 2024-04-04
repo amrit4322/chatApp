@@ -3,6 +3,7 @@ import App from './app';
 import { Helper } from './helpers';
 import routes from './modules';
 // Wrap the code in an async function to use await
+export let ServerInstance:any = null;
 (async () => {
     try {
         const { Mysql } = Helper
@@ -18,6 +19,7 @@ import routes from './modules';
 
             // Start the application server
             appServer.startServer()
+            ServerInstance = appServer.server
         } else {
             console.log(
                 'An error occurred during configuration or Sql connection or Redis connection',

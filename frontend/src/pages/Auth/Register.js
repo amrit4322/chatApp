@@ -353,7 +353,11 @@ const Register = (props) => {
                   {t("Signin")}{" "}
                 </Link>{" "}
               </p>
-              
+              <p>
+                © {new Date().getFullYear()} {t("Chatvia")}. {t("Crafted with")}{" "}
+                <i className="mdi mdi-heart text-danger"></i>{" "}
+                {t("by Themesbrand")}
+              </p>
             </div>
           </Col>
         </Row>

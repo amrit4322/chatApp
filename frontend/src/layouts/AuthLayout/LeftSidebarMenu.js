@@ -29,13 +29,13 @@ import italy from "../../assets/images/flags/italy.jpg";
 import russia from "../../assets/images/flags/russia.jpg";
 import { userActiveTab, userLayout } from "../../redux/slice.auth";
 import config from "../../config";
+import { socket } from "../../helpers/socket";
 
 const LeftSidebarMenu = (props) => {
   const dispatch = useDispatch();
   const layout = useSelector((state) => state.user.layout);
   const [ifNotification, setIsNotification] = useState(false);
   const mode = layout === "dark" ? "light" : "dark";
-  // const notification = useSelector((state)=>state.user.notifcation)
   const onChangeLayoutMode = (value) => {
     console.log("valueeee ", value);
 
@@ -67,11 +67,14 @@ const LeftSidebarMenu = (props) => {
   };
 
   useEffect(()=>{
+    
+
     if(props.notification>0){
       setIsNotification(true)
     }
   },[props.notification])
 
+  
   const activeTab = props.activeTab;
 
   /* changes language according to clicked language menu item */

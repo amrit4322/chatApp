@@ -30,7 +30,7 @@ import logodark from "../../assets/images/logo-dark.png";
 import logolight from "../../assets/images/logo-light.png";
 import { GoogleLogin } from "@react-oauth/google";
 import API from "../../helpers/api";
-import { loginUser, userData } from "../../redux/slice.auth";
+import { loginUser,userData } from "../../redux/slice.auth";
 /**
  * Login component
  * @param {*} props
@@ -38,9 +38,13 @@ import { loginUser, userData } from "../../redux/slice.auth";
 const Login = (props) => {
   const apiInstance = new API();
   const dispatch = useDispatch();
-
+  
   /* intilize t variable for multi language implementation */
   const { t } = useTranslation();
+
+ 
+
+  
 
   const responseMessage = (response) => {
     console.log(response);
@@ -65,40 +69,40 @@ const Login = (props) => {
       console.log("Submit is called", values);
       const isLogin = await apiInstance.post("/user/login", values);
       if (isLogin.status) {
-        dispatch(
-          loginUser({
-            token: isLogin.message.token,
-          })
-        );
+        dispatch(loginUser({
+          token:isLogin.message.token,
+        }))
 
         const response = await apiInstance.getWithToken(
           "/user/email",
           isLogin.message.token
         );
         if (response.status) {
-          dispatch(
-            userData({
-              user: response.message.data,
-            })
-          );
+          dispatch(userData({
+            user:response.message.data,
+          }))
         }
+        
 
-        props.router.navigate("/dashboard");
+
+        props.router.navigate("/dashboard")
       }
+     
+     
     },
   });
 
-  if (useSelector((state) => state.user.user)) {
+  if (useSelector((state)=>state.user.user)) {
     return <Navigate to="/" />;
   }
 
   return (
-    <div className="account-pages mt-5  pt-sm-4 ">
-      <Container className="max-height-0">
+    <div className="account-pages my-5 pt-sm-5">
+      <Container>
         <Row className="justify-content-center">
           <Col md={8} lg={6} xl={5}>
-            <div className="text-center mb-2">
-              <Link to="/" className="auth-logo mb-4 d-block">
+            <div className="text-center mb-4">
+              <Link to="/" className="auth-logo mb-5 d-block">
                 <img
                   src={logodark}
                   alt=""
@@ -224,16 +228,17 @@ const Login = (props) => {
 
             <div className="border-top border-dark w-100 py-3 ">
               <div className="d-flex justify-content-center mt-2">Or</div>
-              <div className="footer d-flex justify-content-evenly align-items-center mt-3 ">
+              <div className="footer d-flex justify-content-evenly align-items-center mt-5 padding">
                 <div>
                   <GoogleLogin
                     onSuccess={responseMessage}
                     onError={errorMessage}
                   />
                 </div>
+                <div>facebook</div>
               </div>
             </div>
-            <div className="mt-1 text-center">
+            <div className="mt-5 text-center">
               <p>
                 {t("Don't have an account")} ?{" "}
                 <Link
@@ -244,6 +249,11 @@ const Login = (props) => {
                   {t("Signup now")}{" "}
                 </Link>{" "}
               </p>
+              <p>
+                © {new Date().getFullYear()} {t("Chatvia")}. {t("Crafted with")}{" "}
+                <i className="mdi mdi-heart text-danger"></i>{" "}
+                {t("by Themesbrand")}
+              </p>
             </div>
           </Col>
         </Row>
@@ -253,8 +263,10 @@ const Login = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const { user } = state.user;
+  const { user} = state.user;
   return { user };
 };
 
-export default withRouter(connect(mapStateToProps)(Login));
+export default withRouter(
+  connect(mapStateToProps)(Login)
+);

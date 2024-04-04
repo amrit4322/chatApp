@@ -33,6 +33,7 @@
     "react-router-dom": "^6.9.0",
     "react-scripts": "^5.0.1",
     "react-slick": "^0.29.0",
+    "react-toastify": "^10.0.5",
     "reactstrap": "^9.1.6",
     "redux": "^4.2.1",
     "redux-persist": "^6.0.0",
@@ -45,7 +46,9 @@
     "yup": "^1.0.2"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:backend\"",
+    "start:frontend": "react-scripts start --port 3003",
+    "start:backend": "nodemon ./src/server.ts",
     "build": "GENERATE_SOURCEMAP=false react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -70,6 +73,8 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "concurrently": "^8.2.2",
+    "nodemon": "^3.1.0",
     "sass": "^1.72.0"
   }
 }

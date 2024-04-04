@@ -4,8 +4,7 @@ import MultiselectCheckboxes from 'react-multiselect-checkboxes';
 import API from '../helpers/api';
 import ContactItems from './ContactItem';
 import { useSelector } from 'react-redux';
-const AddContactModal = ({ t, isOpen, toggle }) => {
-    const [emailData, setEmailData] = useState([]); // State variable to hold email data fetched from API
+const AddContactModal = ({ emailData,t, isOpen, toggle }) => {
     const [selectedContacts, setSelectedContacts] = useState([])
     const [text,setText] = useState("")
 
@@ -27,31 +26,9 @@ const AddContactModal = ({ t, isOpen, toggle }) => {
         setText(e.target.value)
 
     }
-    useEffect(() => {
-        // Fetch email data from API using useEffect
-        // Example: Replace the fetchEmailData function with your actual API call
-        const fetchEmailData = async () => {
-            try {
-                const response = await apiInstance.getWithToken("/contact/newContact/", token)
+   
 
-                if (response.status) {
-
-
-                    const data = response.message.data;
-                    setEmailData(data);
-                }
-                // setEmailData(data); // Set email data in state
-            } catch (error) {
-                console.error('Error fetching email data:', error);
-            }
-        };
-
-        fetchEmailData(); // Call fetchEmailData function
-    }, []);
-
-    useEffect(() => {
-        
-    }, [selectedContacts])
+  
 
 
     // Function to handle selection of emails

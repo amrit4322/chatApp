@@ -8,6 +8,7 @@ import ChatService from "../../modules/chat/chat.service";
 // Defining The queue
 
 let io: SocketIOServer;
+let socket:Socket;
 
 interface UserData {
   socketId: string;
@@ -207,18 +208,9 @@ function initializeSocket(server: Server): SocketIOServer {
       socket.leave(room);
     });
 
-    //for logout handle
-    // socket.on("logout", () => {
-    //   console.log("in logout");
-    //   let id = getUserIdBySocketId(socket.id);
-    //   if (id) {
-    //     userStatus[id] = { socketId: socket.id, status: false };
-    //     logout(id);
-    //     // socket.emit("status",{id,"status":"offline"})
-    //     updateStatus(id, false);
-    //   }
-    //   broadcastStatus();
-    // });
+    
+   
+
 
     /**
 
@@ -247,4 +239,18 @@ function getSocketInstance(): SocketIOServer {
   return io;
 }
 
-export { initializeSocket, getSocketInstance ,userStatus};
+function emitToAll(event:string,data?:any){
+  if (!io) {
+    throw new Error("Socket not initialized. Call initializeSocket() first.");
+  }
+  io.emit(event,data)
+}
+function emitToSocket(senderid:string,event:string,data?:any){
+  let socketId = userStatus[senderid].socketId;
+  if(socketId){
+  io.to(socketId).emit(event,data)
+  }
+
+}
+
+export { initializeSocket, getSocketInstance ,userStatus,io,socket,emitToSocket,emitToAll};

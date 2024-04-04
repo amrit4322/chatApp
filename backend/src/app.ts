@@ -10,6 +10,7 @@ import { initializeSocket } from './helpers/socket/socket.helper';
 
 import { ControllerInterface } from './interfaces/controller.interface' // Import the Controller type from the interfaces modul
 import debug from 'debug'
+import SocketManager from './helpers/socket/socket.manager';
 
 
 
@@ -19,7 +20,7 @@ const debugInstance = debug('node')
 // Define a class for the Express application
 class App {
     private app: express.Application
-    private server: http.Server
+    public server: http.Server
     private port: number | string | boolean
 
     constructor(controllers: ControllerInterface[]) {
@@ -27,6 +28,7 @@ class App {
         this.app = express()
         this.server = http.createServer(this.app)
         initializeSocket(this.server)
+        // new SocketManager(this.server);
         this.port = process.env.PORT ?? 3004
         // Initialize middleware and controllers
         this.initMiddleware()
