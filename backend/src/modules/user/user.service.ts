@@ -148,7 +148,7 @@ class UserService{
         userData: InterFace.UserInterFace.ForgotPasswordRequest
     ): Promise<unknown> {
         const { token, password } = userData;
-       console.log(token)
+    //    console.log(token)
         //TODO password reset or forget implementation
 
 
@@ -305,7 +305,7 @@ class UserService{
         console.log("inside the forgotPassword")
         const { token,password } = userData;
         const tokenDetails = Utilities.decryptOTPToken(token);
-        console.log("tokenDetails",tokenDetails)
+        // console.log("tokenDetails",tokenDetails)
         if (tokenDetails.errorMessage) {
             throw new Error(tokenDetails.errorMessage);
           }

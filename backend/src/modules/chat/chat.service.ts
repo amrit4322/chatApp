@@ -27,14 +27,14 @@ class ChatService {
     data: InterFace.ChatInterface.ChatInterface,
     file:any
   ): Promise<unknown> {
-    console.log("dataaaaaaaaaaaaa is ",data)
-    console.log("file ",file)
+    // console.log("dataaaaaaaaaaaaa is ",data)
+    // console.log("file ",file)
     const filePath = "uploads/"+file.filename
     data.data = JSON.stringify({name:filePath,size:file.size});
-    console.log("datat aaa",data)
+    // console.log("datat aaa",data)
     
     const d = await ChatSchema.Write.create(data);
-    console.log("ddddddddddddddd",d)
+    // console.log("ddddddddddddddd",d)
     let messageObj:MsgData = {
       id: data.id,
       message: data.data, 

@@ -12,6 +12,7 @@ import AuthLayout from "../layouts/AuthLayout/";
 
 import { useDispatch, useSelector } from "react-redux";
 import { userLayout } from '../redux/slice.auth';
+import ToastComponent from '../components/ToastComponent';
 const AuthProtected = (props) => {
     /*
       Navigate is un-auth access protected routes via url

@@ -3,6 +3,7 @@ import withRouter from "../components/withRouter";
 import { connect, useDispatch, useSelector } from "react-redux"
 import PropTypes from "prop-types";
 import { userLayout } from '../redux/slice.auth';
+import ToastComponent from '../components/ToastComponent';
 
 const NonAuth =(props)=> {
     
@@ -24,6 +25,8 @@ const NonAuth =(props)=> {
     }, [dispatch,layout, props.router.location.pathname]);
 
         return <React.Fragment>
+                    <ToastComponent/>
+
             {props.children}
         </React.Fragment>;
     

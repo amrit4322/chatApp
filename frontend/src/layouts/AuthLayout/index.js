@@ -7,6 +7,7 @@ import PropTypes from "prop-types";
 //Import Components
 import LeftSidebarMenu from "./LeftSidebarMenu";
 import { userLayout } from '../../redux/slice.auth';
+import ToastComponent from '../../components/ToastComponent';
 
 const Index =(props)=> {
     const dispatch = useDispatch();
@@ -30,6 +31,8 @@ const Index =(props)=> {
         return (
             <div className="layout-wrapper d-lg-flex">
                     {/* left sidebar menu */}
+                    <ToastComponent/>
+
                     <LeftSidebarMenu />
                         {/* render page content */}
                         {props.children}

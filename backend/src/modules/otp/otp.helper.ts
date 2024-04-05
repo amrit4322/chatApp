@@ -145,7 +145,7 @@ class OPTModel {
             is_used: false // Assuming OTP is initially unused
         };
 
-        console.log("data of otpschema",data)
+        // console.log("data of otpschema",data)
         // check if data exists in OTPSchema 
         const checkOtpExist = await OTPSchema.Read.findOne({ where: { user_id: existingUser.id} });
         if (checkOtpExist) {

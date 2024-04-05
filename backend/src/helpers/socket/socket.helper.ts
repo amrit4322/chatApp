@@ -115,7 +115,7 @@ function initializeSocket(server: Server): SocketIOServer {
         roomTable[room] = [];
       }
       let userId = getUserIdBySocketId(socket.id);
-      console.log(userId);
+      // console.log(userId);
       if (userId && !roomTable[room].includes(userId)) {
         console.log("inside und");
         roomTable[room].push(userId);

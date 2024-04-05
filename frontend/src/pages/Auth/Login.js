@@ -246,7 +246,7 @@ const Login = (props) => {
                     onError={errorMessage}
                   />
                 </div>
-                <div>facebook</div>
+                {/* <div>facebook</div> */}
               </div>
             </div>
             <div className="mt-1 text-center">

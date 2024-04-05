@@ -8,15 +8,21 @@ import API from "../../helpers/api";
 import { socket } from "../../helpers/socket";
 import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { userAccepted, userNotification, userUpdateContacts } from "../../redux/slice.auth";
+import {
+  userAccepted,
+  userNotification,
+  userUpdateContacts,
+  userUpdateInvites,
+} from "../../redux/slice.auth";
 
-const Index = ({ userOnline,activeChat }) => {
+const Index = ({ userOnline, activeChat }) => {
   const inviteAccepted = useSelector((state) => state.user.inviteAccepted);
   const dispatch = useDispatch();
   const notification = useSelector((state) => state.user.notification);
-  const data  = useSelector((state)=>state.user.user)
+  const user = useSelector((state) => state.user.user);
 
   const setToast = (type, data) => {
+    console.log("setToast cALLLLLED")
     toast[type](
       <div>
         <p>Message : {data}</p>
@@ -32,93 +38,108 @@ const Index = ({ userOnline,activeChat }) => {
     );
   };
 
-  useEffect(() => {
 
-    if(data?.id){
-      console.log("emmitting loginnnnnnnnnnnnn")
-      socket.emit("login",data.id)
-      }
-     
-
-    socket.on("inviteNotifcation",(data)=>{
+  useEffect(()=>{
+    socket.on("inviteNotification", (data) => {
       setToast("success", data);
+      console.log("notified");
       dispatch(
         userNotification({
           notification: notification + 1,
         })
       );
 
-    })
+      dispatch(
+        userUpdateInvites({
+          updateInvites: true,
+        })
+      );
+      setTimeout(() => {
+        dispatch(
+          userUpdateInvites({
+            updateInvites: false,
+          })
+        );
+      }, 1000);
+    });
+    return ()=>{
+      socket.off("inviteNotification")
+    }
+  },[])
+  useEffect(() => {
+    if (user?.id) {
+      console.log("emmitting loginnnnnnnnnnnnn");
+      socket.emit("login", user.id);
+    }
 
-
+   
 
     socket.on("removeNotification", (data) => {
-      console.log("notification",data)
-      dispatch(
-        userNotification({
-          notification: notification + 1,
-        })
-      );
+      console.log("notification", data);
+
       dispatch(
         userUpdateContacts({
-          updateContacts:true
-         })
-      )
-      setTimeout(()=>{
-        dispatch(userUpdateContacts({
-          updateContacts:false,
-        }))
-      },1000)
+          updateContacts: true,
+        })
+      );
+      setTimeout(() => {
+        dispatch(
+          userUpdateContacts({
+            updateContacts: false,
+          })
+        );
+      }, 1000);
       setToast("info", data);
     });
     socket.on("notificationAccepted", (data) => {
-      console.log("notification",data)
+      console.log("notification", data);
 
-      console.log("notifcation", data);
+      dispatch(
+        userNotification({
+          notification: notification + 1,
+        })
+      );
       // if (!inviteAccepted.some(invite => invite.id === data.id)) {
-        // If not, dispatch the action with the new invite added to the filtered array
-        dispatch(
-          userAccepted({
-            inviteAccepted: inviteAccepted?.length > 0 ? [...inviteAccepted, data] : [data],
-          })
-        );
+      // If not, dispatch the action with the new invite added to the filtered array
+      console.log("inviteAccepted?.length > 0",inviteAccepted?.length)
+      dispatch(
+        userAccepted({
+          inviteAccepted:
+            inviteAccepted?.length > 0 ? [...inviteAccepted, data] : [data],
+        })
+      );
       // }
-      
+
       setToast("success", data);
     });
     return () => {
       socket.off("notificationAccepted");
       socket.off("removeNotification");
-      socket.off("login")
+      socket.off("login");
     };
-  }, [dispatch, inviteAccepted]);
+  }, [inviteAccepted]);
   console.log("users ssssss", userOnline);
   return (
     <React.Fragment>
       {/* chat left sidebar */}
       <ChatLeftSidebar recentChatList={userOnline} />
+      <ToastContainer />
 
       {/* user chat */}
-      {
-        activeChat ?(
-     <>
-          <UserChat recentChatList={userOnline} />
-          <ToastContainer />
-     </>
-
-        ):(
-          <div className="d-flex w-100 justify-content-center align-items-center bg-red color-red">
+      {activeChat ? (
+        <UserChat recentChatList={userOnline} />
+      ) : (
+        <div className="d-flex w-100 justify-content-center align-items-center bg-red color-red">
           Nothing to show
         </div>
-        )
-      }
+      )}
     </React.Fragment>
   );
 };
 
 const mapStateToProps = (state) => {
-  const { userOnline , activeChat} = state.user;
-  return { userOnline ,activeChat};
+  const { userOnline, activeChat } = state.user;
+  return { userOnline, activeChat };
 };
 
 export default connect(mapStateToProps, {})(Index);

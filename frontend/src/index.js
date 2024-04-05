@@ -20,7 +20,7 @@ root.render(
   <GoogleOAuthProvider clientId="1041409647284-jkmponna01pc6vkfcis9078casuntrl7.apps.googleusercontent.com">
     <Provider store={store}>
         <BrowserRouter>
-        <ToastComponent/>
+        {/* <ToastComponent/> */}
           <App />
         </BrowserRouter>
     </Provider>

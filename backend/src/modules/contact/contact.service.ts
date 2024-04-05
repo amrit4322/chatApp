@@ -158,7 +158,7 @@ class ContactService {
     });
     if (inviteExist) {
       console.log("Already exist invite");
-      await inviteExist?.destroy();
+      await inviteExist.destroy();
     }
   
     emitToSocket(sender.id.toString(),"notificationAccepted",`${reciever.firstName} ${reciever.lastName} (${reciever.email}) accepted your invite`)
@@ -211,12 +211,13 @@ class ContactService {
         });
         if (allreadyInvited) {
           console.log("inside alredyInvite");
-          await existingInvite.update({ accepted: true });
+          await existingInvite.destroy();
+          await this.connect(contact.email,existingUser.email)
         }
       } else {
         // Create new entry
         console.log("outside");
-        emitToSocket(contact.id.toString(),"inviteNotifcation",`${existingUser.email} has invited you`)
+        emitToSocket(contact.id.toString(),"inviteNotification",`${existingUser.email} has invited you`)
 
         await InvitationSchema.Write.create({
           userId: userID,
@@ -261,7 +262,7 @@ class ContactService {
         profilePath: user.profilePath,
       };
     });
-    console.log("data  ", data);
+    // console.log("data  ", data);
 
     return { success: true, data: data };
   }

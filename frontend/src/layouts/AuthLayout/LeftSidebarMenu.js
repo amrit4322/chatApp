@@ -66,15 +66,13 @@ const LeftSidebarMenu = (props) => {
     );
   };
 
-  useEffect(()=>{
-    
-    console.log("notifcationssssssssssssss",props.notification)
-    if(props.notification>0){
-      setIsNotification(true)
+  useEffect(() => {
+    console.log("notifcationssssssssssssss", props.notification);
+    if (props.notification > 0) {
+      setIsNotification(true);
     }
-  },[props.notification])
+  }, [props.notification]);
 
-  
   const activeTab = props.activeTab;
 
   /* changes language according to clicked language menu item */
@@ -178,11 +176,19 @@ const LeftSidebarMenu = (props) => {
                 toggleTab("notification");
               }}
             >
-              {ifNotification == false ? (
+              <i className="ri-notification-2-line position-relative ">
+                {(ifNotification && props.activeTab!=="notification") && (
+                  <span className="position-absolute top-0 start-100 translate-middle badge border border-light rounded-circle bg-danger p-2">
+                    <span class="visually-hidden">unread messages</span>
+                  </span>
+                )}
+              </i>
+
+              {/* {ifNotification == false ? (
                 <i className="ri-notification-2-line "></i>
               ) : (
                 <i className="ri-notification-badge-fill "></i>
-              )}
+              )} */}
 
               {/* <Badge color="danger" className="position-absolute top-0 start-100 translate-middle">
                 <span>!</span>
@@ -320,22 +326,21 @@ const LeftSidebarMenu = (props) => {
                 className="profile-user rounded-circle"
               /> */}
               {props.user?.profilePath === null ? (
-              <div className="chat-user-img align-self-center ms-2">
-                <div className="avatar-xs">
-                  <span className="avatar-title rounded-circle bg-soft-primary  text-primary">
-                    {props.user.firstName.charAt(0)}
-                    {props.user.lastName.charAt(0)}
-                  </span>
+                <div className="chat-user-img align-self-center ms-2">
+                  <div className="avatar-xs">
+                    <span className="avatar-title rounded-circle bg-soft-primary  text-primary">
+                      {props.user.firstName.charAt(0)}
+                      {props.user.lastName.charAt(0)}
+                    </span>
+                  </div>
                 </div>
-              </div>
               ) : (
-              <img
-                src={`${config.BASE_URL}${props.user?.profilePath}`}
-                alt="chatvia"
-                className="profile-user rounded-circle"
-              />
-              )
-}
+                <img
+                  src={`${config.BASE_URL}${props.user?.profilePath}`}
+                  alt="chatvia"
+                  className="profile-user rounded-circle"
+                />
+              )}
             </DropdownToggle>
             <DropdownMenu>
               <DropdownItem

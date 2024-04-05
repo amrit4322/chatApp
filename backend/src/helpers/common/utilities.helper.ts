@@ -185,11 +185,11 @@ public generateOTPToken(phoneNumber: string
   const timestamp: number = Date.now();    
   // Handling undefined values
   const data: string = `${phoneNumber}:${timestamp}:${existingUser}`;
-  console.log("data is of token",data)
+//   console.log("data is of token",data)
   // Encrypting data to generate token
   const cipherText = CryptoJS.AES.encrypt(data, CryptoJSEncTokenKey);
   const token: string = cipherText.toString();
-  console.log("token is",token)
+//   console.log("token is",token)
   // Assuming expiration time as 1 minute from now
   const expiration: number = timestamp + (10 * 60 * 1000); // 1 minute in milliseconds
   return { token, expiration };   
@@ -203,11 +203,11 @@ public generateOTPToken(phoneNumber: string
      */
     public decryptOTPToken(token: string): { phoneNumber: string; existingUser: string ; errorMessage: string | null } {
       try {
-        console.log("token",token)
+        // console.log("token",token)
           const bytes = CryptoJS.AES.decrypt(token, CryptoJSEncTokenKey);
-          console.log(bytes)
+        //   console.log(bytes)
           const decryptedData = bytes.toString(CryptoJS.enc.Utf8);
-          console.log("bawa",decryptedData)
+        //   console.log("bawa",decryptedData)
   
           if (!decryptedData) {
               return { phoneNumber: '', existingUser: '', errorMessage: 'Token decryption failed' };

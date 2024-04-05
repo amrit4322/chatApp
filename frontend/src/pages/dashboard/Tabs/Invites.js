@@ -10,14 +10,18 @@ import { socket } from "../../../helpers/socket";
 const Invites = () => {
   const [contacts, setContacts] = useState([]);
   const inviteAccepted = useSelector((state)=>state.user.inviteAccepted)
-  const notifications = useSelector((state) => state.user.notification);
+  const notification = useSelector((state) => state.user.notification);
+  const updateInvites = useSelector((state)=>state.user.updateInvites)
   const apiInstance = new API();
   const dispatch = useDispatch();
   const token = useSelector((state) => state.user.token);
   useEffect(() => {
     fetchContacts();
+    // if(updateInvites){
+    //   fetchContacts()
+    // }
    
-  }, [notifications]);
+  }, [updateInvites]);
 
 
 
@@ -28,7 +32,7 @@ const Invites = () => {
         token
       );
       if (response.status) {
-        // console.log("fetchhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",response.message.data.length)
+        console.log("fetchhhhhhhhhhhhhhhhhhhhhhhhhhhhhhhh",response.message.data.length)
         setContacts(response.message.data);
         dispatch(
           userNotification({
@@ -43,7 +47,9 @@ const Invites = () => {
 
   const removeNotification = (notificationId) => {
     dispatch(userAccepted({
-      inviteAccepted: inviteAccepted.filter((item) => item.id !== notificationId)
+      inviteAccepted: inviteAccepted.filter((_,ind) => {
+        console.log("testtttttttttttttttttttt",ind,notificationId)
+        return ind !== notificationId})
     }));
    
   };
@@ -92,7 +98,7 @@ const Invites = () => {
             />
           </InputGroup>
         </div>
-        {contacts && notifications > 0 ? (
+        {contacts && notification > 0 ? (
           <div>
             <ul className="list-unstyled contact-list">
               {contacts?.map((contact) => (
@@ -167,7 +173,7 @@ const Invites = () => {
           <span className="text-dark">{item}</span>
           <button
             className="btn btn-danger btn-sm"
-            onClick={() => removeNotification(item.id)}
+            onClick={() => removeNotification(id)}
           >
             Remove
           </button>
@@ -180,5 +186,7 @@ const Invites = () => {
     </div>
   );
 };
+
+
 
 export default Invites;
