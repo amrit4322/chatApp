@@ -4,6 +4,17 @@ import { Helper } from './helpers';
 import routes from './modules';
 // Wrap the code in an async function to use await
 export let ServerInstance:any = null;
+import {socketClient} from 'nodeash-socket'
+
+
+
+// const eventArray = [
+//     { type: 'emit', eventName: 'welcome', function: () => ({ message: 'Hello from server!' }) },
+//     { type: 'broadcast', eventName: 'update', data: { someData: 123 } },
+//     { type: 'join', room: 'myRoom' },
+//     { type: 'leave', room: 'anotherRoom' },
+//     { type: 'to', room: 'specialRoom', eventName: 'secret', function: () => ({ hushHush: 'classified' })},
+//   ];
 (async () => {
     try {
         const { Mysql } = Helper
@@ -19,7 +30,10 @@ export let ServerInstance:any = null;
 
             // Start the application server
             appServer.startServer()
-            ServerInstance = appServer.server
+
+              
+            //   socketClient({appServer :appServer.server , events : eventArray})
+            
         } else {
             console.log(
                 'An error occurred during configuration or Sql connection or Redis connection',
@@ -36,3 +50,5 @@ export let ServerInstance:any = null;
         process.exit(1) // Exit the application with an error code (1)
     }
 })()
+
+

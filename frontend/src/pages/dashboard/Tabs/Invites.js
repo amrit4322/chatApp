@@ -5,8 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import config from "../../../config";
 import { userAccepted, userNotification, userUpdateContacts } from "../../../redux/slice.auth";
 import { socket } from "../../../helpers/socket";
-// import 'react-toastify/dist/ReactToastify.css';
-import { Bounce, ToastContainer, toast } from "react-toastify";
+
 
 const Invites = () => {
   const [contacts, setContacts] = useState([]);
@@ -17,7 +16,7 @@ const Invites = () => {
   const token = useSelector((state) => state.user.token);
   useEffect(() => {
     fetchContacts();
-  
+   
   }, [notifications]);
 
 
@@ -46,6 +45,7 @@ const Invites = () => {
     dispatch(userAccepted({
       inviteAccepted: inviteAccepted.filter((item) => item.id !== notificationId)
     }));
+   
   };
   const handleIgnore = (contactId) => {
     // Handle ignore action
@@ -65,6 +65,7 @@ const Invites = () => {
       dispatch(userUpdateContacts({
         updateContacts:true,
       }))
+     
       setTimeout(()=>{
         dispatch(userUpdateContacts({
           updateContacts:false,

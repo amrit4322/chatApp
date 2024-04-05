@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import withRouter from "../../components/withRouter";
@@ -30,6 +30,7 @@ import { useTranslation } from "react-i18next";
 import logodark from "../../assets/images/logo-dark.png";
 import logolight from "../../assets/images/logo-light.png";
 import API from "../../helpers/api";
+import ToastComponent from "../../components/ToastComponent";
 
 /**
  * Register component
@@ -38,6 +39,8 @@ import API from "../../helpers/api";
 const Register = (props) => {
   /* intilize t variable for multi language implementation */
   const { t } = useTranslation();
+  const [error,setError] = useState("")
+
   const apiInstance = new API();
   // validation
   const formik = useFormik({
@@ -89,18 +92,32 @@ const Register = (props) => {
       //   .required("You must accept the Terms and Privacy Policy"),
     }),
     onSubmit: async (values) => {
-      let data = {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        phoneNumber: values.phoneNumber,
-        password: values.password,
-      };
-      console.log("Submit is called", data);
-      const response = await apiInstance.post("/user/register", data);
-
-      if (response.status) {
-        props.router.navigate("/login");
+      // props.registerUser(values);
+      try {
+        let data = {
+          firstName: values.firstName,
+          lastName: values.lastName,
+          email: values.email,
+          phoneNumber: values.phoneNumber,
+          password: values.password,
+        };
+        const isRegister = await apiInstance.post("/user/register", data);
+        if (isRegister.status) {
+          props.router.navigate("/login");
+          ToastComponent({
+            message: "Registered successfully, please Login",
+            options: {
+              icon: "🎉",
+              background: "lightblue",
+            },
+          });
+        } else {
+          setError(isRegister.message.message);
+        }
+      } catch (errors) {
+        console.log("Error during registration:", errors);
+        // Update API error state
+        setError("An error occurred during registration.");
       }
     },
   });
@@ -134,12 +151,12 @@ const Register = (props) => {
 
             <Card>
               <CardBody className="p-4">
-                {props.error && <Alert variant="danger">{props.error}</Alert>}
-                {props.user && (
+                {error && <Alert variant="danger">{error}</Alert>}
+                {/* {props.user && (
                   <Alert variant="success">
                     Thank You for registering with us!
                   </Alert>
-                )}
+                )} */}
                 <div className="p-3">
                   <Form onSubmit={formik.handleSubmit}>
                     <Row>
@@ -352,11 +369,6 @@ const Register = (props) => {
                   {" "}
                   {t("Signin")}{" "}
                 </Link>{" "}
-              </p>
-              <p>
-                © {new Date().getFullYear()} {t("Chatvia")}. {t("Crafted with")}{" "}
-                <i className="mdi mdi-heart text-danger"></i>{" "}
-                {t("by Themesbrand")}
               </p>
             </div>
           </Col>

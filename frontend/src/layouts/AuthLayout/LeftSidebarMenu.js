@@ -68,7 +68,7 @@ const LeftSidebarMenu = (props) => {
 
   useEffect(()=>{
     
-
+    console.log("notifcationssssssssssssss",props.notification)
     if(props.notification>0){
       setIsNotification(true)
     }

@@ -10,7 +10,10 @@ import { useSelector } from 'react-redux';
 
 
 function App() {
+  useEffect(()=>{
   
+    socket.on("welcome", (data) => console.log("aaaaaaaaaa" ,data))
+  }, [])
   return <Routes />;
 };
 

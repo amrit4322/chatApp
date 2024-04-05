@@ -10,7 +10,7 @@ import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { userAccepted, userNotification, userUpdateContacts } from "../../redux/slice.auth";
 
-const Index = ({ userOnline }) => {
+const Index = ({ userOnline,activeChat }) => {
   const inviteAccepted = useSelector((state) => state.user.inviteAccepted);
   const dispatch = useDispatch();
   const notification = useSelector((state) => state.user.notification);
@@ -75,12 +75,15 @@ const Index = ({ userOnline }) => {
       console.log("notification",data)
 
       console.log("notifcation", data);
-      dispatch(
-        userAccepted({
-          inviteAccepted:
-            inviteAccepted?.length > 0 ? [...inviteAccepted, data] : [data],
-        })
-      );
+      // if (!inviteAccepted.some(invite => invite.id === data.id)) {
+        // If not, dispatch the action with the new invite added to the filtered array
+        dispatch(
+          userAccepted({
+            inviteAccepted: inviteAccepted?.length > 0 ? [...inviteAccepted, data] : [data],
+          })
+        );
+      // }
+      
       setToast("success", data);
     });
     return () => {
@@ -96,15 +99,26 @@ const Index = ({ userOnline }) => {
       <ChatLeftSidebar recentChatList={userOnline} />
 
       {/* user chat */}
-      <UserChat recentChatList={userOnline} />
-      <ToastContainer />
+      {
+        activeChat ?(
+     <>
+          <UserChat recentChatList={userOnline} />
+          <ToastContainer />
+     </>
+
+        ):(
+          <div className="d-flex w-100 justify-content-center align-items-center bg-red color-red">
+          Nothing to show
+        </div>
+        )
+      }
     </React.Fragment>
   );
 };
 
 const mapStateToProps = (state) => {
-  const { userOnline } = state.user;
-  return { userOnline };
+  const { userOnline , activeChat} = state.user;
+  return { userOnline ,activeChat};
 };
 
 export default connect(mapStateToProps, {})(Index);

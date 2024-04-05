@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Container,
   Row,
@@ -30,7 +30,8 @@ import logodark from "../../assets/images/logo-dark.png";
 import logolight from "../../assets/images/logo-light.png";
 import { GoogleLogin } from "@react-oauth/google";
 import API from "../../helpers/api";
-import { loginUser,userData } from "../../redux/slice.auth";
+import { loginUser, userData } from "../../redux/slice.auth";
+import ToastComponent from "../../components/ToastComponent";
 /**
  * Login component
  * @param {*} props
@@ -38,13 +39,9 @@ import { loginUser,userData } from "../../redux/slice.auth";
 const Login = (props) => {
   const apiInstance = new API();
   const dispatch = useDispatch();
-  
+  const [error,setError] = useState("")
   /* intilize t variable for multi language implementation */
   const { t } = useTranslation();
-
- 
-
-  
 
   const responseMessage = (response) => {
     console.log(response);
@@ -67,41 +64,55 @@ const Login = (props) => {
     }),
     onSubmit: async (values) => {
       console.log("Submit is called", values);
-      const isLogin = await apiInstance.post("/user/login", values);
-      if (isLogin.status) {
-        dispatch(loginUser({
-          token:isLogin.message.token,
-        }))
+      try {
+        const isLogin = await apiInstance.post("/user/login", values);
+        if (isLogin.status) {
+          dispatch(
+            loginUser({
+              token: isLogin.message.token,
+            })
+          );
 
-        const response = await apiInstance.getWithToken(
-          "/user/email",
-          isLogin.message.token
-        );
-        if (response.status) {
-          dispatch(userData({
-            user:response.message.data,
-          }))
+          const response = await apiInstance.getWithToken(
+            "/user/email",
+            isLogin.message.token
+          );
+          if (response.status) {
+            dispatch(
+              userData({
+                user: response.message.data,
+              })
+            );
+          }
+
+          props.router.navigate("/dashboard");
+          ToastComponent({
+            message: "Logged in successfully",
+            options: {
+              icon: "🎉",
+            },
+          });
+        } else {
+          setError(isLogin.message.message);
         }
-        
-
-
-        props.router.navigate("/dashboard")
+      } catch (error) {
+        console.log("Error during Login:", error);
+        // Update API error state
+        setError("An error occurred. Try Logging again");
       }
-     
-     
     },
   });
 
-  if (useSelector((state)=>state.user.user)) {
+  if (useSelector((state) => state.user.user)) {
     return <Navigate to="/" />;
   }
 
   return (
-    <div className="account-pages my-5 pt-sm-5">
-      <Container>
+    <div className="account-pages mt-5 pt-sm-4">
+      <Container className="max-height-0">
         <Row className="justify-content-center">
           <Col md={8} lg={6} xl={5}>
-            <div className="text-center mb-4">
+            <div className="text-center mb-2">
               <Link to="/" className="auth-logo mb-5 d-block">
                 <img
                   src={logodark}
@@ -125,7 +136,7 @@ const Login = (props) => {
 
             <Card>
               <CardBody className="p-4">
-                {props.error && <Alert color="danger">{props.error}</Alert>}
+                {error && <Alert color="danger">{error}</Alert>}
                 <div className="p-3">
                   <Form onSubmit={formik.handleSubmit}>
                     <div className="mb-3">
@@ -228,7 +239,7 @@ const Login = (props) => {
 
             <div className="border-top border-dark w-100 py-3 ">
               <div className="d-flex justify-content-center mt-2">Or</div>
-              <div className="footer d-flex justify-content-evenly align-items-center mt-5 padding">
+              <div className="footer d-flex justify-content-evenly align-items-center mt-3 ">
                 <div>
                   <GoogleLogin
                     onSuccess={responseMessage}
@@ -238,7 +249,7 @@ const Login = (props) => {
                 <div>facebook</div>
               </div>
             </div>
-            <div className="mt-5 text-center">
+            <div className="mt-1 text-center">
               <p>
                 {t("Don't have an account")} ?{" "}
                 <Link
@@ -249,11 +260,11 @@ const Login = (props) => {
                   {t("Signup now")}{" "}
                 </Link>{" "}
               </p>
-              <p>
+              {/* <p>
                 © {new Date().getFullYear()} {t("Chatvia")}. {t("Crafted with")}{" "}
                 <i className="mdi mdi-heart text-danger"></i>{" "}
                 {t("by Themesbrand")}
-              </p>
+              </p> */}
             </div>
           </Col>
         </Row>
@@ -263,10 +274,8 @@ const Login = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const { user} = state.user;
+  const { user } = state.user;
   return { user };
 };
 
-export default withRouter(
-  connect(mapStateToProps)(Login)
-);
+export default withRouter(connect(mapStateToProps)(Login));

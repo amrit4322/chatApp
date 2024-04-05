@@ -29,6 +29,7 @@ class App {
         this.server = http.createServer(this.app)
         initializeSocket(this.server)
         // new SocketManager(this.server);
+     
         this.port = process.env.PORT ?? 3004
         // Initialize middleware and controllers
         this.initMiddleware()

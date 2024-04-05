@@ -14,7 +14,7 @@ import { userActiveChat, userChats, userConnected } from "../../../redux/slice.a
 
 const Chats = ({ connectedUsers, activeChat }) => {
   const [searchChat, setSearchChat] = useState("");
-  const [filteredChatList, setFilteredChatList] = useState(connectedUsers);
+  const [filteredChatList, setFilteredChatList] = useState(connectedUsers || null);
   const dispatch = useDispatch();
 
   //TODO hadnlemesgg

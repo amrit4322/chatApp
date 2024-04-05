@@ -34,6 +34,7 @@ import { socket } from "../../../helpers/socket";
 import { userChats } from "../../../redux/slice.auth";
 import config from "../../../config";
 import { format } from "date-fns";
+import API from "../../../helpers/api";
 
 const UserChat = (props) => {
   const ref = useRef();
@@ -46,7 +47,8 @@ const UserChat = (props) => {
   //userType must be required
   const [allUsers] = useState(props.recentChatList);
   const [chatMessages, setchatMessages] = useState([]);
-
+  const apiInstance = new API();
+  const token = useSelector((state) => state.user.token);
   const setMessageData = (data) => {
     console.log("MESHSDFJSJDFDF", data);
     dispatch(
@@ -63,11 +65,17 @@ const UserChat = (props) => {
       "props.activeChat?.id === data.id",
       props.activeChat?.id === data.author
     );
+    let incomingData =  { ...data };;
+    incomingData.isFileMessage = incomingData.isFileMessage=="true";
+    incomingData.isImageMessage = incomingData.isImageMessage=="true";
+    console.log("incomingData ", incomingData);
+
+
     if (props.activeChat?.id === data.author) {
-      setchatMessages([...chatMessages, data]);
+      setchatMessages([...chatMessages, incomingData]);
       dispatch(
         userChats({
-          chats: [...chatMessages, data],
+          chats: [...chatMessages, incomingData],
         })
       );
     }
@@ -111,11 +119,11 @@ const UserChat = (props) => {
       ref.current.getScrollElement().scrollTop =
         ref.current.getScrollElement().scrollHeight;
     }
-  }, [dispatch, chatMessages, props.activeChat?.id, props.chats]);
+  }, [chatMessages, props.activeChat?.id, props.chats]);
 
   const toggle = () => setModal(!modal);
 
-  const addMessage = (message, type, id) => {
+  const addMessage = async (message, type, id) => {
     let messageObj = null;
     console.log("obj jjjjjjjj", message);
     let d = new Date().toISOString();
@@ -135,9 +143,11 @@ const UserChat = (props) => {
         break;
 
       case "fileMessage":
+        // let fileMessage = JSON.stringify(message);
+
         messageObj = {
           id: generateMessageId(),
-          message: message,
+          message: "",
           timestamp: d,
           author: props.user.id,
           isFileMessage: true,
@@ -147,12 +157,11 @@ const UserChat = (props) => {
         break;
 
       case "imageMessage":
-        let imageMessage = [{ image: message }];
         messageObj = {
           id: generateMessageId(),
-          message: imageMessage,
+          message: "",
           timestamp: d,
-          author: id,
+          author: props.user.id,
           isImageMessage: true,
           isFileMessage: false,
           seen: false,
@@ -164,13 +173,50 @@ const UserChat = (props) => {
     }
 
     //add message object to chat
-    setchatMessages([...chatMessages, messageObj]);
-    // socket.emit("message_send", messageObj, props.activeChat.id);
-    // dispatch(
-    //   userChats({
-    //     chats: [...chatMessages, messageObj],
-    //   })
-    // );
+    if (type === "textMessage") {
+      socket.emit("message_send", messageObj, props.activeChat.id);
+    } else {
+      console.log("testing of message", messageObj);
+      const formData = new FormData();
+      formData.append("file", message);
+      formData.append("id", messageObj.id);
+      formData.append("data", "");
+      formData.append("timestamp", messageObj.timestamp);
+      formData.append("senderId", messageObj.author);
+      formData.append("receiverId", props.activeChat.id);
+      formData.append("isFileMessage", messageObj.isFileMessage);
+      formData.append("isImageMessage", messageObj.isImageMessage);
+      formData.append("seen", messageObj.seen);
+      let response = await apiInstance.uploadFile(
+        "/chat/uploadfile",
+        formData,
+        token
+      );
+      if (response.status) {
+        console.log("Responseeeeeeeee", response);
+
+        let data = response.message.data;
+        messageObj = {
+          id: data.id,
+          message: data.data,
+          timestamp: data.timestamp,
+          author: data.senderId,
+          isFileMessage: data.isFileMessage,
+          isImageMessage: data.isImageMessage,
+          seen: data.seen,
+        };
+      } else {
+        return { status: true };
+      }
+    }
+    console.log("messsssssssssssssssss", messageObj);
+    setchatMessages((prevChatMessages) => [...prevChatMessages, messageObj]);
+
+    dispatch(
+      userChats({
+        chats: [...chatMessages, messageObj],
+      })
+    );
 
     // let copyallUsers = [...allUsers];
     // copyallUsers[props.active_user].messages = [...chatMessages, messageObj];
@@ -178,6 +224,7 @@ const UserChat = (props) => {
     // props.setFullUser(copyallUsers);
 
     scrolltoBottom();
+    return { status: true };
   };
 
   function scrolltoBottom() {
@@ -267,18 +314,22 @@ const UserChat = (props) => {
                       >
                         <div className="ctext-wrap ">
                           <div className="ctext-wrap-content">
-                            {chat.message && (
-                              <p className="mb-0">{chat.message}</p>
-                            )}
+                            {chat.message &&
+                              !chat?.isImageMessage &&
+                              !chat?.isFileMessage && (
+                                <p className="mb-0">teee{chat.message}</p>
+                              )}
                             {chat?.isImageMessage && (
                               // image list component
                               <ImageList images={chat.message} />
                             )}
                             {chat?.isFileMessage && (
                               //file input component
+
                               <FileList
-                                fileName={chat?.fileMessage}
-                                fileSize={chat?.size}
+                                file={chat?.message}
+                                // fileName={chat?.fileMessage}
+                                // fileSize={chat?.size}
                               />
                             )}
                             {chat?.isTyping && (
@@ -389,21 +440,21 @@ const UserChat = (props) => {
                         ) : (
                           <div className="chat-avatar">
                             {chat.author === props.user.id ? (
-                             props.user?.profilePath === null ? (
-                              <div className="chat-user-img align-self-center ">
-                                <div className="avatar-xs">
-                                  <span className="avatar-title rounded-circle bg-soft-primary text-primary">
-                                    {props.user.firstName.charAt(0)}
-                                    {props.user.lastName.charAt(0)}
-                                  </span>
+                              props.user?.profilePath === null ? (
+                                <div className="chat-user-img align-self-center ">
+                                  <div className="avatar-xs">
+                                    <span className="avatar-title rounded-circle bg-soft-primary text-primary">
+                                      {props.user.firstName.charAt(0)}
+                                      {props.user.lastName.charAt(0)}
+                                    </span>
+                                  </div>
                                 </div>
-                              </div>
-                            ) : (
-                              <img
-                                src={`${config.BASE_URL}${props.user?.profilePath}`}
-                                alt="chatvia"
-                              />
-                            )
+                              ) : (
+                                <img
+                                  src={`${config.BASE_URL}${props.user?.profilePath}`}
+                                  alt="chatvia"
+                                />
+                              )
                             ) : props.activeChat?.profilePath === null ? (
                               <div className="chat-user-img align-self-center">
                                 <div className="avatar-xs">
@@ -429,9 +480,11 @@ const UserChat = (props) => {
                       >
                         <div className="ctext-wrap">
                           <div className="ctext-wrap-content ">
-                            {chat.message && (
-                              <p className="mb-0">{chat.message}</p>
-                            )}
+                            {chat.message &&
+                              !chat?.isImageMessage &&
+                              !chat?.isFileMessage && (
+                                <p className="mb-0">{chat.message}</p>
+                              )}
                             {chat.isImageMessage && (
                               // image list component
                               <ImageList images={chat.message} />
@@ -439,8 +492,9 @@ const UserChat = (props) => {
                             {chat.isFileMessage && (
                               //file input component
                               <FileList
-                                fileName={chat?.fileMessage}
-                                fileSize={chat?.size}
+                                file={chat.message}
+                                // fileName={chat?.fileMessage}
+                                // fileSize={chat?.size}
                               />
                             )}
                             {chat?.isTyping && (

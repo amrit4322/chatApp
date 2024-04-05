@@ -15,8 +15,8 @@ class Database implements SequelizeInterface {
             dialect: 'mysql', // Specify the database dialect (e.g., "mysql")
             logging: false,
             define: {
-                charset: 'utf8',
-                collate: 'utf8_general_ci',
+                charset: 'utf8mb4',
+                collate: 'utf8mb4_unicode_ci',
                 underscored: true,
                 timestamps: true,
                 createdAt: true,
@@ -36,8 +36,8 @@ class Database implements SequelizeInterface {
             dialect: 'mysql', // Specify the database dialect (e.g., "mysql")
             logging: false,
             define: {
-                charset: 'utf8',
-                collate: 'utf8_general_ci',
+                charset: 'utf8mb4',
+                collate: 'utf8mb4_unicode_ci',
                 underscored: true,
                 timestamps: true,
                 createdAt: true,

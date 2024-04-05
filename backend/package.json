@@ -50,6 +50,7 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "mysql2": "^3.9.1",
+    "nodeash-socket": "^1.1.1",
     "nodemon": "^3.1.0",
     "sequelize": "^6.37.1",
     "socket.io": "^4.7.4",

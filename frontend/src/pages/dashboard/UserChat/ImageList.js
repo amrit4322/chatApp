@@ -14,11 +14,13 @@ import { useTranslation } from "react-i18next";
 
 import Lightbox from "react-image-lightbox";
 import "react-image-lightbox/style.css";
+import config from "../../../config";
 
-function ImageList(props) {
+const ImageList=({images})=> {
   const [isOpen, setisOpen] = useState(false);
   const [currentImage, setcurrentImage] = useState(null);
-  const [images] = useState(props.images);
+  const [image] = useState([JSON.parse(images)] || []);
+
 
   /* intilize t variable for multi language implementation */
   const { t } = useTranslation();
@@ -31,16 +33,17 @@ function ImageList(props) {
   return (
     <ul className="list-inline message-img  mb-0">
         {/* image list */}
-        {images.map((imgMsg, key) => (
+        {image.map((imgMsg, key) => (
           <li key={key} className="list-inline-item message-img-list">
             <div>
               <Link
                 to="#"
-                onClick={() => toggleLightbox(imgMsg.image)}
+                onClick={() => toggleLightbox(`${config.BASE_URL}${imgMsg.name}`)}
                 className="popup-img d-inline-block m-1"
                 title="Project 1"
               >
-                <img src={imgMsg.image} alt="chat" className="rounded border" />
+                {console.log("imgmasjdf",`${config.BASE_URL}${imgMsg.name}`)}
+                <img src={`${config.BASE_URL}${imgMsg.name}`} alt="chat" className="rounded border" />
               </Link>
             </div>
             <div className="message-img-link">

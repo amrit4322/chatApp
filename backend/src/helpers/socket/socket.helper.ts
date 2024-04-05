@@ -246,7 +246,7 @@ function emitToAll(event:string,data?:any){
   io.emit(event,data)
 }
 function emitToSocket(senderid:string,event:string,data?:any){
-  let socketId = userStatus[senderid].socketId;
+  let socketId = userStatus[senderid]?.socketId;
   if(socketId){
   io.to(socketId).emit(event,data)
   }

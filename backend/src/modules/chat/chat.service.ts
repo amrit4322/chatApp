@@ -4,6 +4,8 @@ import { Helper } from "../../helpers";
 import * as InterFace from "../../interfaces";
 import { Op } from "sequelize";
 import userService from "../user/user.service";
+import { emitToSocket } from "../../helpers/socket/socket.helper";
+import { MsgData } from "../../interfaces/chat.interface";
 const { ResMsg, Utilities } = Helper;
 class ChatService {
   public async fetchAll(): Promise<unknown> {
@@ -19,6 +21,32 @@ class ChatService {
   ): Promise<unknown> {
     await ChatSchema.Write.create(data);
     return { success: true };
+  }
+
+  public async insertMessageWithFile(
+    data: InterFace.ChatInterface.ChatInterface,
+    file:any
+  ): Promise<unknown> {
+    console.log("dataaaaaaaaaaaaa is ",data)
+    console.log("file ",file)
+    const filePath = "uploads/"+file.filename
+    data.data = JSON.stringify({name:filePath,size:file.size});
+    console.log("datat aaa",data)
+    
+    const d = await ChatSchema.Write.create(data);
+    console.log("ddddddddddddddd",d)
+    let messageObj:MsgData = {
+      id: data.id,
+      message: data.data, 
+      timestamp: data.timestamp,
+      author: data.senderId,
+      isFileMessage: data.isFileMessage, 
+      isImageMessage: data.isImageMessage,
+      seen: data.seen, 
+    };
+    // socket.to(socketId).emit("message", data);
+    emitToSocket(data.receiverId,"message",messageObj)
+    return { success: true ,data:d};
   }
   public async fetchMessages(id: string, connectId: string): Promise<unknown> {
     if (!connectId || !id) {
@@ -127,7 +155,7 @@ class ChatService {
         [Op.or]: [{ senderId: userId }, { receiverId: userId }],
       },
       order: [
-        ["createdAt", "DESC"], // Assuming 'createdAt' is the field you want to order by
+        ["timestamp", "DESC"], // Assuming 'createdAt' is the field you want to order by
       ],
     });
     if (!allMessages) {
@@ -145,6 +173,8 @@ class ChatService {
         "about",
       ],
     });
+
+    
     allMessages.forEach((item) => {
       if (item.senderId === userId) {
         const receiver = allUsers.find(
