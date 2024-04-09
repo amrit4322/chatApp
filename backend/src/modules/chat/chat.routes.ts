@@ -18,7 +18,7 @@ class ChatRoutes implements ControllerInterface {
     this.router
       .all(`${this.path}/*`)
       .post(`${this.path}/uploadfile`,validateToken,upload.single("file"), ChatController.uploadMessage)
-    //   .get(`${this.path}/find`, ContactController.fetchUser)
+      .get(`${this.path}/download/:name`, validateToken,ChatController.download)
     //   .post(`${this.path}/connect`, ContactController.connect)
     //   .post(`${this.path}/remove`, ContactController.remove)
   }

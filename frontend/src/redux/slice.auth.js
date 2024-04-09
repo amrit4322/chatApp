@@ -5,8 +5,9 @@ const initialState = {
   user: null,
   userOnline: [],
   chats: [],
-  connectedUsers: [],
+  recent: [],
   groups: [],
+  connectedUsers: [],
   layout: "light",
   activeTab: "chat",
   activeChat: null,
@@ -53,6 +54,9 @@ const userSlice = createSlice({
     userActiveChat: (state, action) => {
       state.activeChat = action.payload.activeChat;
     },
+    userRecent: (state, action) => {
+      state.recent = action.payload.recent;
+    },
     userConnected: (state, action) => {
       state.connectedUsers = action.payload.connectedUsers;
     },
@@ -84,6 +88,7 @@ const userSlice = createSlice({
       state.activeTab = "chat";
       state.activeChat = null;
       state.allUser = [];
+      state.recent = [];
       state.connectedUsers = [];
       state.notification = 0;
       state.inviteAccepted = [];
@@ -102,6 +107,7 @@ export const {
   userActiveTab,
   userActiveChat,
   userAll,
+  userRecent,
   userConnected,
   userChats,
   userGroups,

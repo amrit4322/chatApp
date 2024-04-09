@@ -17,6 +17,7 @@ import { connect } from "react-redux";
 //import images
 import user from "../../../assets/images/users/avatar-4.jpg";
 import config from "../../../config";
+import { socket } from "../../../helpers/socket";
 
 const UserHead = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -28,13 +29,13 @@ const UserHead = (props) => {
   const toggle1 = () => setDropdownOpen1(!dropdownOpen1);
   const toggleCallModal = () => setCallModal(!Callmodal);
   const toggleVideoModal = () => setVideoModal(!Videomodal);
-
+  console.log("rrrrrrrrrrrr",props.activeChat)
   const openUserSidebar = (e) => {
     e.preventDefault();
     props.openUserSidebar();
   };
 
-  function closeUserChat(e) {
+  const closeUserChat=(e) =>{
     e.preventDefault();
     var userChat = document.getElementsByClassName("user-chat");
     if (userChat) {
@@ -42,10 +43,20 @@ const UserHead = (props) => {
     }
   }
 
-  function deleteMessage() {
+  const  deleteMessage= () =>{
     let allUsers = props.users;
     let copyallUsers = allUsers;
     copyallUsers[props.active_user].messages = [];
+  }
+  const handleVideoCall =(id)=>{
+    console.log("testingggg",id)
+    socket.emit("connecting_video",id)
+    setVideoModal(false)
+  }
+  const handleAudioCall =(id)=>{
+    console.log("testingggg Audio",id)
+    socket.emit("connecting_audio",id)
+    setCallModal(false)
   }
 
   return (
@@ -218,15 +229,34 @@ const UserHead = (props) => {
           >
             <ModalBody>
               <div className="text-center p-4">
-                <div className="avatar-lg mx-auto mb-4">
+              {props.activeChat.profilePath !== null ? (
+                    <div className="avatar-lg mb-4 mx-auto ">
+                      <img
+                      
+                        src={`${config.BASE_URL}${props.activeChat?.profilePath}`}
+                        className="img-thumbnail h-100 rounded-circle"
+                        alt="user"
+                      />
+                    </div>
+                  ) : (
+                    <div className="chat-user-img avatar-lg mx-auto  mt-4 align-self-center">
+                      <div className="avatar-lg">
+                        <span className="img-thumbnail  p-4 rounded-circle bg-soft-primary text-primary">
+                          {props.activeChat?.firstName.charAt(0)}
+                          {props.activeChat?.lastName.charAt(0)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                {/* <div className="avatar-lg mx-auto mb-4">
                   <img
                     src={user}
                     alt=""
                     className="img-thumbnail rounded-circle"
                   />
-                </div>
+                </div> */}
 
-                <h5 className="text-truncate">Doris Brown</h5>
+                <h5 className="text-truncate">{props.activeChat.firstName} {props.activeChat.lastName}</h5>
                 <p className="text-muted">Start Audio Call</p>
 
                 <div className="mt-5">
@@ -246,6 +276,7 @@ const UserHead = (props) => {
                       <button
                         type="button"
                         className="btn btn-success avatar-sm rounded-circle"
+                        onClick={()=>handleAudioCall(props.activeChat.id)}
                       >
                         <span className="avatar-title bg-transparent font-size-20">
                           <i className="ri-phone-fill"></i>
@@ -267,15 +298,27 @@ const UserHead = (props) => {
           >
             <ModalBody>
               <div className="text-center p-4">
-                <div className="avatar-lg mx-auto mb-4">
-                  <img
-                    src={user}
-                    alt=""
-                    className="img-thumbnail rounded-circle"
-                  />
-                </div>
+              {props.activeChat.profilePath !== null ? (
+                    <div className="avatar-lg mb-4 mx-auto ">
+                      <img
+                      
+                        src={`${config.BASE_URL}${props.activeChat?.profilePath}`}
+                        className="img-thumbnail h-100 rounded-circle"
+                        alt="user"
+                      />
+                    </div>
+                  ) : (
+                    <div className="chat-user-img avatar-lg mx-auto  mt-4 align-self-center">
+                      <div className="avatar-lg">
+                        <span className="img-thumbnail  p-4 rounded-circle bg-soft-primary text-primary">
+                          {props.activeChat?.firstName.charAt(0)}
+                          {props.activeChat?.lastName.charAt(0)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
 
-                <h5 className="text-truncate">Doris Brown</h5>
+                <h5 className="text-truncate">{props.activeChat.firstName} {props.activeChat.lastName}</h5>
                 <p className="text-muted">Start Video Call</p>
 
                 <div className="mt-5">
@@ -295,7 +338,9 @@ const UserHead = (props) => {
                       <button
                         type="button"
                         className="btn btn-success avatar-sm rounded-circle"
+                        onClick={()=>handleVideoCall(props.activeChat.id)}
                       >
+                     
                         <span className="avatar-title bg-transparent font-size-20">
                           <i className="ri-vidicon-fill"></i>
                         </span>
@@ -317,8 +362,7 @@ const UserHead = (props) => {
 };
 
 const mapStateToProps = (state) => {
-  const { user, onlineUser, activeChat } = state.user;
-  return { ...state.user, user, onlineUser, activeChat };
+  return { ...state.user };
 };
 
 export default connect(mapStateToProps)(UserHead);

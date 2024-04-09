@@ -69,6 +69,23 @@ class API {
       throw error;
     }
   }
+  async download(endpoint, token = null) {
+    try {
+      const response = await fetch(this.baseURL + endpoint, {
+        method: "GET",
+        headers: {
+          "api-access-token": token,
+      
+        },
+      });
+      const blob = await response.blob();
+    
+      return {message:blob,status: true };
+    } catch (error) {
+      console.error("Error during GET request:", error);
+      return {status: false };
+    }
+  }
 
   //Function to make Post request with token
   async postWithToken(endpoint, formdata, token = null) {

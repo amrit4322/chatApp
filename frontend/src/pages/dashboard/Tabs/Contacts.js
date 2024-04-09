@@ -9,7 +9,8 @@ import AddContactModal from "../../../components/AddContactModal";
 import { APIClient } from "../../../helpers/apiClient";
 import API from "../../../helpers/api";
 import { socket } from "../../../helpers/socket";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { userConnected } from "../../../redux/slice.auth";
 //use sortedContacts variable as global variable to sort contacts
 let sortedContacts = [
   {
@@ -22,7 +23,7 @@ const Contacts = ({ t }) => {
   const [modal, setModal] = useState(false);
   const [contacts, setContacts] = useState([]);
   const [emailData, setEmailData] = useState([]); // State variable to hold email data fetched from API
-
+const dispatch = useDispatch();
   const [allcontacts, setFetchContacts] = useState([]);
   const [searchValue, setSearchValue] = useState("");
   const updateContacts = useSelector((state) => state.user.updateContacts);
@@ -38,11 +39,15 @@ const Contacts = ({ t }) => {
     const response = await apiInstance.getWithToken("/contact/find", token);
     if (response.status) {
       const contactsData = response.message.data;
-      // console.log("contacts ienfs ",contactsData)
+
+      console.log("contacts ienfs ",contactsData)
+
       const sortedContacts = contactsData.sort((a, b) => {
         return a.firstName.localeCompare(b.firstName);
       });
-
+      dispatch(userConnected({
+        connectedUsers:response.message.data
+      }))
       // console.log("sortedcontacts ",sortedContacts)
       setFetchContacts(sortedContacts);
       sortContact(sortedContacts);

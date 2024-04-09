@@ -253,7 +253,7 @@ const UserChat = (props) => {
           <UserHead />
 
           <SimpleBar
-            style={{ maxHeight: "100%" }}
+            style={{ maxHeight: "100%" ,flexDirection: "column-reverse"}}
             ref={ref}
             className="chat-conversation p-3 p-lg-4 "
             id="messages"
@@ -560,7 +560,7 @@ const UserChat = (props) => {
                         ) : (
                           <div className="conversation-name">
                             {chat.author === props.user.id
-                              ? "Admin"
+                              ? props.user.firstName
                               : props.activeChat?.firstName}
                           </div>
                         )}

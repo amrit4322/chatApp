@@ -4,6 +4,8 @@ import ChatService from "./chat.service";
 import { Helper } from "../../helpers";
 import * as InterFace from "../../interfaces";
 import upload from "../../config/multer";
+import path from "path";
+
 
 
 const {Response :HelperResponse,ResMsg,Logger} = Helper;
@@ -32,5 +34,25 @@ class ChatController{
         }
     }
 
+    public async download(req:Request,res:Response){
+        try{
+            const fileName = req.params.name;
+            
+          
+            const directoryPath = path.join(__dirname, "../../uploads/")
+            console.log("path is ",directoryPath)
+            res.download(directoryPath + fileName, fileName, (err) => {
+              if (err) {
+                res.status(500).send({
+                  message: "Could not download the file. " + err,
+                });
+              }
+            });
+          
+        }
+        catch(error:any){
+
+        }
+    }
 }
 export default new ChatController();

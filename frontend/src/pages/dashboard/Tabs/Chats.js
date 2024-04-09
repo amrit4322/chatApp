@@ -10,11 +10,11 @@ import SimpleBar from "simplebar-react";
 import OnlineUsers from "./OnlineUsers";
 import ChatItem from "../../../components/chatItem";
 import { socket } from "../../../helpers/socket";
-import { userActiveChat, userChats, userConnected } from "../../../redux/slice.auth";
+import { userActiveChat, userChats, userConnected, userRecent } from "../../../redux/slice.auth";
 
-const Chats = ({ connectedUsers, activeChat }) => {
+const Chats = ({ recent, activeChat }) => {
   const [searchChat, setSearchChat] = useState("");
-  const [filteredChatList, setFilteredChatList] = useState(connectedUsers || null);
+  const [filteredChatList, setFilteredChatList] = useState(recent || null);
   const dispatch = useDispatch();
 
   //TODO hadnlemesgg
@@ -22,8 +22,8 @@ const Chats = ({ connectedUsers, activeChat }) => {
 
   const setContactData = (data) => {
     dispatch(
-      userConnected({
-        connectedUsers: data,
+      userRecent({
+        recent: data,
       })
     );
   };
@@ -35,8 +35,8 @@ const Chats = ({ connectedUsers, activeChat }) => {
   }, [activeChat]);
 
   useEffect(() => {
-    setFilteredChatList(connectedUsers);
-  }, [connectedUsers]);
+    setFilteredChatList(recent);
+  }, [recent]);
 
   useEffect(() => {
     socket.emit("fetchAllConnection");
@@ -53,20 +53,20 @@ const Chats = ({ connectedUsers, activeChat }) => {
   const handleChange = (e) => {
     setSearchChat(e.target.value);
     const search = e.target.value.toLowerCase();
-    const filteredArray = connectedUsers.filter(
+    const filteredArray = recent.filter(
       (element) =>
         element.firstName.toLowerCase().includes(search) ||
         element.lastName.toUpperCase().includes(search)
     );
     setFilteredChatList(filteredArray);
     if (search === "") {
-      setFilteredChatList(connectedUsers);
+      setFilteredChatList(recent);
     }
   };
 
   const openUserChat = (e, chat) => {
     e.preventDefault();
-    const index = connectedUsers.indexOf(chat);
+    const index = recent.indexOf(chat);
     console.log("indexxxxx", chat);
     dispatch(
       userActiveChat({
@@ -139,7 +139,7 @@ const Chats = ({ connectedUsers, activeChat }) => {
         <h5 className="mb-3 px-3 font-size-16">Recent</h5>
         <SimpleBar style={{ maxHeight: "100%" }} className="chat-message-list">
           <ul className="list-unstyled chat-list chat-user-list" id="chat-list">
-            {connectedUsers?.map((chat, key) => (
+            {recent?.map((chat, key) => (
               <ChatItem
                 key={key}
                 chat={chat}
@@ -156,8 +156,8 @@ const Chats = ({ connectedUsers, activeChat }) => {
 };
 
 const mapStateToProps = (state) => {
-  const { activeChat, connectedUsers } = state.user;
-  return { activeChat, connectedUsers };
+  const { activeChat, recent } = state.user;
+  return { activeChat, recent };
 };
 
 export default connect(mapStateToProps)(Chats);
