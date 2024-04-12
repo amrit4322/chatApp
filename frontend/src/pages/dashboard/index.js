@@ -10,6 +10,7 @@ import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import {
   userAccepted,
+  userConnectedVideo,
   userNotification,
   userUpdateContacts,
   userUpdateInvites,
@@ -22,45 +23,18 @@ const Index = ({ userOnline, activeChat }) => {
   const dispatch = useDispatch();
   const notification = useSelector((state) => state.user.notification);
   const connectedUsers = useSelector((state) => state.user.connectedUsers);
+  const connectedAudio = useSelector((state) => state.user.connectedAudio);
+  const connectedVideo = useSelector((state) => state.user.connectedVideo);
   const [incomingVideo, setIncomingVideo] = useState(null);
   const [incomingAudio, setIncomingAudio] = useState(null);
   console.log("orrrrrrrrrrrrrr", connectedUsers);
-  const [accepted, setIsAccepted] = useState(false);
+  const [acceptedVideo, setIsAcceptedVideo] = useState(false);
+  const [acceptedAudio, setIsAcceptedAudio] = useState(false);
   const [audioCall, setIsAudioCall] = useState(false);
   // const filteredUsers = connectedUsers.filter(user => user.id === id);
   const user = useSelector((state) => state.user.user);
-
-  const onAudioStream = () => {
-    navigator.mediaDevices
-      .getUserMedia({ audio: true, video: false })
-      .then((stream) => {
-        const mediaRecorder = new MediaRecorder(stream);
-        const audioChunks = [];
-
-        mediaRecorder.addEventListener("dataavailable", function (event) {
-          audioChunks.push(event.data);
-        });
-
-        mediaRecorder.addEventListener("stop", function () {
-          const audioBlob = new Blob(audioChunks);
-          const fileReader = new FileReader();
-          fileReader.readAsDataURL(audioBlob);
-
-          fileReader.onloadend = function () {
-            const base64String = fileReader.result;
-            socket.emit("audio_stream", user.id, base64String);
-          };
-        });
-        setIsAudioCall(true);
-        mediaRecorder.start();
-        setTimeout(function () {
-          mediaRecorder.stop();
-        }, 5000); // Adjust the duration as needed
-      })
-      .catch((error) => {
-        console.error("Error capturing audio.", error);
-      });
-  };
+  const [offer,setOffer] = useState(null)
+  
   const setToast = (type, data) => {
     console.log("setToast cALLLLLED");
     toast[type](
@@ -79,27 +53,44 @@ const Index = ({ userOnline, activeChat }) => {
   };
 
   useEffect(() => {
-    socket.on("call_connected_video", (data) => {
-      console.log("Callllllllllllllllllllllllllll");
-      const filteredUsers = connectedUsers.filter((user) => user.id === data);
-      setIsAccepted(true);
-      setIncomingVideo(filteredUsers);
-    });
+   
+    
 
-    socket.on("user_connect_request_video", (data) => {
+    socket.on("user_connect_request_video", (data,offer) => {
       console.log("connnnnnnnnnnnnnnn", incomingVideo, data);
       const filteredUsers = connectedUsers.filter((user) => user.id === data);
+      setOffer(offer)
       setIncomingVideo(filteredUsers);
     });
-    socket.on("user_connect_request_audio", (data) => {
-      console.log("audioooooooo", incomingAudio, data);
+    socket.on("user_connect_request_audio", (data,offer) => {
+
+      console.log("audioooooooo", incomingAudio, data,offer);
       const filteredUsers = connectedUsers.filter((user) => user.id === data);
+      console.log("filereeee",filteredUsers)
+      setOffer(offer)
       setIncomingAudio(filteredUsers);
     });
     return () => {
       socket.off("user_connect_request_video");
+      socket.off("user_connect_request_audio");
     };
-  }, [incomingVideo, incomingAudio, accepted]);
+  }, [incomingVideo, incomingAudio, acceptedVideo]);
+
+  useEffect(()=>{
+    if(connectedVideo){
+      const filteredUsers = connectedUsers.filter((user) => user.id === activeChat?.id);
+      console.log("connecteddddd ",filteredUsers)
+      setIsAcceptedVideo(true);
+      setIncomingVideo(filteredUsers);
+    }
+    
+    if(connectedAudio){
+      const filteredUsers = connectedUsers.filter((user) => user.id === activeChat?.id);
+      console.log("connecteddddd Audioo",filteredUsers)
+      setIsAcceptedAudio(true);
+      setIncomingAudio(filteredUsers);
+    }
+  },[connectedVideo,connectedAudio])
   useEffect(() => {
     socket.on("inviteNotification", (data) => {
       setToast("success", data);
@@ -183,28 +174,29 @@ const Index = ({ userOnline, activeChat }) => {
       {/* chat left sidebar */}
       <ChatLeftSidebar recentChatList={userOnline} />
       <ToastContainer />
-      {incomingVideo?.length > 0 && (
-        <VideoCallModal
+      {incomingVideo?.length > 0  && (
+        <VideoCallModal 
           isOpen={incomingVideo?.length > 0}
-          user={incomingVideo[0]}
+          userConnTo={incomingVideo[0]}
           setValue={setIncomingVideo}
-          IsAccepted={accepted}
-          setAccept={setIsAccepted}
-          onAudio={onAudioStream}
+          IsAccepted={acceptedVideo}
+          setAccept={setIsAcceptedVideo}
+          isConnected = {connectedVideo}
+          offerAvail= {offer}
+
         />
       )}
-      {incomingAudio?.length > 0 && audioCall ? (
+      {incomingAudio?.length > 0 &&
         <AudioCallModal
           isOpen={true}
-          user={incomingAudio[0]}
+          userConnTo={incomingAudio[0]}
           setValue={setIncomingAudio}
-          IsAccepted={accepted}
-          setAccept={setIsAccepted}
-          onAudio={onAudioStream}
+          IsAccepted={acceptedAudio}
+          setAccept={setIsAcceptedAudio}
+          isConnected = {connectedAudio}
+          offerAvail= {offer}
         />
-      ) : (
-        <h4>Testing</h4>
-      )}
+       }
 
       {/* user chat */}
       {activeChat ? (
@@ -219,7 +211,7 @@ const Index = ({ userOnline, activeChat }) => {
 };
 
 const mapStateToProps = (state) => {
-  const { userOnline, activeChat } = state.user;
+  const { userOnline, activeChat} = state.user;
   return { userOnline, activeChat };
 };
 

@@ -16,6 +16,8 @@ const initialState = {
   inviteAccepted:[],
   updateContacts:false,
   updateInvites:false,
+  connectedAudio:false,
+  connectedVideo:false,
 };
 
 const userSlice = createSlice({
@@ -77,6 +79,12 @@ const userSlice = createSlice({
     userAll: (state, action) => {
       state.allUser = action.payload.allUser;
     },
+    userConnectedAudio: (state, action) => {
+      state.connectedAudio = action.payload.connectedAudio;
+    },
+    userConnectedVideo: (state, action) => {
+      state.connectedVideo = action.payload.connectedVideo;
+    },
 
     logoutUser: (state) => {
       state.token = null;
@@ -94,6 +102,8 @@ const userSlice = createSlice({
       state.inviteAccepted = [];
       state.updateInvites =false;
       state.updateContacts=false;
+      state.connectedAudio= false;
+      state.connectedVideo = false;
     },
   },
 });
@@ -114,7 +124,9 @@ export const {
   userNotification,
   userAccepted,
   userUpdateContacts,
-  userUpdateInvites
+  userUpdateInvites,
+  userConnectedAudio,
+  userConnectedVideo
 } = userSlice.actions;
 
 export default userSlice.reducer;

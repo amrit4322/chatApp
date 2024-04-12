@@ -12,19 +12,19 @@ import {
   ModalBody,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 
 //import images
-import user from "../../../assets/images/users/avatar-4.jpg";
 import config from "../../../config";
 import { socket } from "../../../helpers/socket";
+import { userConnectedAudio, userConnectedVideo } from "../../../redux/slice.auth";
 
 const UserHead = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownOpen1, setDropdownOpen1] = useState(false);
   const [Callmodal, setCallModal] = useState(false);
   const [Videomodal, setVideoModal] = useState(false);
-
+  const dispatch = useDispatch();
   const toggle = () => setDropdownOpen(!dropdownOpen);
   const toggle1 = () => setDropdownOpen1(!dropdownOpen1);
   const toggleCallModal = () => setCallModal(!Callmodal);
@@ -50,12 +50,18 @@ const UserHead = (props) => {
   }
   const handleVideoCall =(id)=>{
     console.log("testingggg",id)
-    socket.emit("connecting_video",id)
+    // socket.emit("connecting_video",id)
+    console.log("dispatching ConnectedVideo")
+    dispatch(userConnectedVideo({
+      connectedVideo:true
+    }))
     setVideoModal(false)
   }
   const handleAudioCall =(id)=>{
     console.log("testingggg Audio",id)
-    socket.emit("connecting_audio",id)
+    dispatch(userConnectedAudio({
+      connectedAudio:true
+    }))
     setCallModal(false)
   }
 
@@ -106,6 +112,7 @@ const UserHead = (props) => {
                         {props.activeChat?.firstName}{" "}
                         {props.activeChat?.lastName}
                       </Link>
+                      
                       {(() => {
                         switch (props.activeChat?.status) {
                           case "online":

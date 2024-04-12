@@ -1,4 +1,6 @@
+// import { Server } from "https";
 import { Server } from "http";
+
 import { Server as SocketIOServer, Socket } from "socket.io";
 import UserService from "../../modules/user/user.service";
 import RabbitMq from "../rabbitmq/rabbitmq.helper";
@@ -14,6 +16,21 @@ interface UserData {
   socketId: string;
   status: boolean;
 }
+
+interface IceSignal {
+  iceCandidate: any;
+  iceUserId: string;
+  didIOffer: boolean;
+}
+interface Offer {
+  offererId: string;
+  offer: any;
+  offerIceCandidates: any[];
+  answererUserName: any | null;
+  answer: any | null;
+  answererIceCandidates: any[];
+}
+let offers: Offer[] = [];
 
 let userStatus: { [userId: string]: UserData } = {};
 let roomTable: { [room: string]: string[] } = {};
@@ -96,6 +113,7 @@ function initializeSocket(server: Server): SocketIOServer {
     socket.on("login", (id: string) => {
       userStatus[id] = { socketId: socket.id, status: true };
       console.log("inaidw ", id);
+
       updateStatus(id, true);
       // socket.emit("status",{id,"status":"online"})
       broadcastStatus();
@@ -208,75 +226,207 @@ function initializeSocket(server: Server): SocketIOServer {
       socket.leave(room);
     });
 
-    socket.on("connecting_video", (userTo: string) => {
+    socket.on("connecting_video", (userTo: string,newOffer: any) => {
       console.log("starting connection video");
       const socketTO: string = userStatus[userTo]?.socketId;
       const userfrom = getUserIdBySocketId(socket.id);
       if (userfrom && userTo && socketTO && !connectedCalls.has(userTo)) {
-        socket.to(socketTO).emit("user_connect_request_video", userfrom);
+        offers.push({
+          offererId: userfrom,
+          offer: newOffer,
+          offerIceCandidates: [],
+          answererUserName: null,
+          answer: null,
+          answererIceCandidates: [],
+        });
+        // console.log(newOffer.sdp.slice(50))
+        //send out to all connected sockets EXCEPT the caller
+        socket
+          .to(socketTO)
+          .emit("user_connect_request_video", userfrom, offers.slice(-1));
+        // socket.broadcast.emit('newOfferAwaiting',offers.slice(-1))
+
+        console.log("starting connection audio");
       } else {
         console.log("not Authenticated");
       }
     });
-    socket.on("connecting_audio", (userTo: string) => {
-      console.log("starting connection audio");
+    socket.on("connecting_audio", (userTo: string, newOffer: any) => {
       const socketTO: string = userStatus[userTo]?.socketId;
       const userfrom = getUserIdBySocketId(socket.id);
       if (userfrom && userTo && socketTO && !connectedCalls.has(userTo)) {
-        socket.to(socketTO).emit("user_connect_request_audio", userfrom);
+        offers.push({
+          offererId: userfrom,
+          offer: newOffer,
+          offerIceCandidates: [],
+          answererUserName: null,
+          answer: null,
+          answererIceCandidates: [],
+        });
+        // console.log(newOffer.sdp.slice(50))
+        //send out to all connected sockets EXCEPT the caller
+        socket
+          .to(socketTO)
+          .emit("user_connect_request_audio", userfrom, offers.slice(-1));
+        // socket.broadcast.emit('newOfferAwaiting',offers.slice(-1))
+
+        console.log("starting connection audio");
       } else {
         console.log("not Authenticated");
       }
     });
 
-    socket.on("accepted_request", (senderId: string) => {
+    socket.on(
+      "sendIceCandidateToSignalingServer",
+      (iceCandidateObj: IceSignal) => {
+        const { didIOffer, iceUserId, iceCandidate } = iceCandidateObj;
+        // console.log(iceCandidate);
+        if (didIOffer) {
+          console.log("emmitted sendIceCandidateToSignalingServer");
+          //this ice is coming from the offerer. Send to the answerer
+          const offerInOffers = offers.find((o) => o.offererId === iceUserId);
+          if (offerInOffers) {
+            offerInOffers.offerIceCandidates.push(iceCandidate);
+            console.log("offerInOfferrss", offerInOffers);
+            // 1. When the answerer answers, all existing ice candidates are sent
+            // 2. Any candidates that come in after the offer has been answered, will be passed through
+            if (offerInOffers.answererUserName) {
+              //pass it through to the other socket
+              console.log(
+                "offerInOffers.answererUserName",
+                offerInOffers.answererUserName
+              );
+              const socketToSendTo =
+                userStatus[offerInOffers.answererUserName].socketId;
+              // const socketToSendTo = connectedSockets.find(s=>s.userName === offerInOffers.answererUserName);
+              if (socketToSendTo) {
+                socket
+                  .to(socketToSendTo)
+                  .emit("receivedIceCandidateFromServer", iceCandidate);
+              } else {
+                console.log(
+                  "Ice candidate recieved but could not find answere"
+                );
+              }
+            }
+          }
+        } else {
+          //this ice is coming from the answerer. Send to the offerer
+          //pass it through to the other socket
+          console.log("iceUserName", iceUserId);
+
+          const offerInOffers = offers.find(
+            (o) => o.answererUserName === iceUserId
+          );
+          if (offerInOffers) {
+            const socketToSendTo = userStatus[offerInOffers.offererId].socketId;
+
+            // const socketToSendTo = connectedSockets.find(s=>s.userName === offerInOffers.offererId);
+            if (socketToSendTo) {
+              socket
+                .to(socketToSendTo)
+                .emit("receivedIceCandidateFromServer", iceCandidate);
+            } else {
+              console.log("Ice candidate recieved but could not find offerer");
+            }
+          }
+        }
+        // console.log(offers)
+      }
+    );
+
+    socket.on("newAnswer", (offerObj, ackFunction) => {
+      let id = getUserIdBySocketId(socket.id);
+      console.log(offerObj);
+      //emit this answer (offerObj) back to CLIENT1
+      //in order to do that, we need CLIENT1's socketid
+      const socketToAnswer = userStatus[offerObj.offererId].socketId;
+      // const socketToAnswer = connectedSockets.find(s=>s.userName === offerObj.offererUserName)
+      if (!socketToAnswer) {
+        console.log("No matching socket");
+        return;
+      }
+      //we found the matching socket, so we can emit to it!
+
+      //we find the offer to update so we can emit it
+      const offerToUpdate = offers.find(
+        (o) => o.offererId === offerObj.offererId
+      );
+      if (!offerToUpdate) {
+        console.log("No OfferToUpdate");
+        return;
+      }
+      //send back to the answerer all the iceCandidates we have already collected
+      ackFunction(offerToUpdate.offerIceCandidates);
+      offerToUpdate.answer = offerObj.answer;
+      offerToUpdate.answererUserName = id;
+      //socket has a .to() which allows emiting to a "room"
+      //every socket has it's own room
+      socket.to(socketToAnswer).emit("answerResponse", offerToUpdate);
+    });
+
+    
+    socket.on("accepted_request_video", (senderId: string) => {
       const userfrom = getUserIdBySocketId(socket.id);
       const senderSocket = userStatus[senderId].socketId;
       if (userfrom && senderId && senderSocket) {
         connectedCalls.set(userfrom, senderId);
         connectedCalls.set(senderId, userfrom);
         io.to(senderSocket).emit("call_connected_video", userfrom);
-        console.log("connectedCalls accept ", connectedCalls);
+        console.log("connectedCalls accept video ", connectedCalls);
       } else {
-        console.log("accepted request failed");
+        console.log("accepted request failed video");
+      }
+    });
+    socket.on("accepted_request_audio", (senderId: string) => {
+      const userfrom = getUserIdBySocketId(socket.id);
+      const senderSocket = userStatus[senderId].socketId;
+      if (userfrom && senderId && senderSocket) {
+        connectedCalls.set(userfrom, senderId);
+        connectedCalls.set(senderId, userfrom);
+        io.to(senderSocket).emit("call_connected_audio", userfrom);
+        console.log("connectedCalls accept audio", connectedCalls);
+      } else {
+        console.log("accepted request failed audio");
       }
     });
 
-    socket.on("data_transfer", (id: string, data: any) => {
-      // console.log("dataaaa", data, id);
-      let socketID = userStatus[id]?.socketId;
-      if(socketID){
-      socket.to(socketID).emit("data_received", data);
-      }
-      else{
-        console.log("error in transmission")
-      }
-    });
+  
 
-    socket.on("audio_stream", (id: string, data: any) => {
-      console.log("dataaaa", data, id);
-      let socketID = userStatus[id]?.socketId;
-      if(socketID){
-      socket.to(socketID).emit("audio_received", data);
-      }
-      else{
-        console.log("error in transmission")
-      }
-    });
-    socket.on("end_call", (id: string) => {
+    
+    socket.on("end_call_video", (id: string) => {
       const userTo: string = userStatus[id].socketId;
       const userfrom = getUserIdBySocketId(socket.id);
-
+      offers = offers.filter(offer => offer.offererId !== id);
+      offers = offers.filter(offer => offer.offererId !== userfrom);
       if (userfrom && userTo) {
         connectedCalls.delete(userfrom);
         connectedCalls.delete(id);
-        socket.to(userTo).emit("call_ended")
+        socket.to(userTo).emit("call_ended_video");
         console.log("connectedCalls after end", connectedCalls);
       } else {
         console.log("not Authenticated");
       }
     });
 
+  
+    socket.on("end_call_audio", (id: string) => {
+      console.log("End call by ",id)
+      const userTo: string = userStatus[id]?.socketId;
+      const userfrom = getUserIdBySocketId(socket.id);
+      offers = offers.filter(offer => offer.offererId !== id);
+      offers = offers.filter(offer => offer.offererId !== userfrom);
+
+      console.log("poffff",offers)
+      if (userfrom && userTo) {
+        connectedCalls.delete(userfrom);
+        connectedCalls.delete(id);
+        socket.to(userTo).emit("call_ended_audio");
+        console.log("connectedCalls after end", connectedCalls);
+      } else {
+        console.log("not Authenticated");
+      }
+    });
     /**
 
     

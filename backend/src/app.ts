@@ -1,6 +1,8 @@
 'use strict';
 // Import necessary modules and dependencies
+import fs from "fs"
 import http from 'http'
+// import https from 'https'
 import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
@@ -20,13 +22,21 @@ const debugInstance = debug('node')
 // Define a class for the Express application
 class App {
     private app: express.Application
+    // public server: https.Server
     public server: http.Server
+
     private port: number | string | boolean
+    private key:any;
+    private cert:any;
 
     constructor(controllers: ControllerInterface[]) {
         // Initialize the Express application and server
+        this.cert =   fs.readFileSync('cert.crt');
+        this.key = fs.readFileSync('cert.key');
         this.app = express()
+        // this.server = https.createServer({key:this.key,cert:this.cert},this.app)
         this.server = http.createServer(this.app)
+
         initializeSocket(this.server)
         // new SocketManager(this.server);
      
