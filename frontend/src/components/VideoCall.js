@@ -226,14 +226,9 @@ const VideoCallModal = ({
 
   const rejectConnecton = () => {
     console.log("rejectConnecton");
-
     setValue(null);
-    dispatch(
-      userConnectedVideo({
-        connectedVideo: false,
-      })
-    );
-
+   
+    handleCut();
     toggleVideoModal();
   };
   const handleAccept = () => {
@@ -279,6 +274,7 @@ const VideoCallModal = ({
           centered
           keyboard={false}
           backdrop="static"
+          size="lg"
         >
           <ModalBody>
             <div className="text-center p-4">

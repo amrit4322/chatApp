@@ -17,10 +17,12 @@ const OnlineUsers = () => {
   };
   const [onlineUser,setOnlineUsers] = useState(null);
   const userID = useSelector((state)=>state.user.user)
+  const connectedUsers = useSelector((state)=>state.user.connectedUsers)
   
   useEffect(()=>{
     function broadCastOnline(data){
-      const filteredData = data.filter(user => user !== userID?.id);
+      const connectedUserIds = connectedUsers.map(user => user.id);
+      const filteredData = data.filter(user => connectedUserIds.includes(user));
       setOnlineUsers(filteredData)
     }
     socket.on("userStatusUpdate", broadCastOnline)

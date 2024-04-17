@@ -229,12 +229,7 @@ const AudioCallModal = ({
     console.log("rejectConnecton")
 
     setValue(null);
-    dispatch(
-      userConnectedAudio({
-        connectedAudio: false,
-      })
-    );
-
+    handleCut();
     toggleAudioModal();
   };
   const handleAccept = () => {
@@ -282,6 +277,7 @@ const AudioCallModal = ({
           centered
           keyboard={false}
           backdrop="static"
+
         >
           <ModalBody>
             <div className="text-center p-4">

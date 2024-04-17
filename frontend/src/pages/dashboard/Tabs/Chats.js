@@ -1,7 +1,7 @@
 import React, { Component, useEffect, useState } from "react";
 import { Input, InputGroup } from "reactstrap";
 import { Link } from "react-router-dom";
-import { connect, useDispatch } from "react-redux";
+import { connect, useDispatch, useSelector } from "react-redux";
 
 //simplebar
 import SimpleBar from "simplebar-react";
@@ -13,14 +13,17 @@ import { socket } from "../../../helpers/socket";
 import { userActiveChat, userChats, userConnected, userRecent } from "../../../redux/slice.auth";
 
 const Chats = ({ recent, activeChat }) => {
+  console.log("recent data ",recent)
   const [searchChat, setSearchChat] = useState("");
   const [filteredChatList, setFilteredChatList] = useState(recent || null);
   const dispatch = useDispatch();
+  const user = useSelector((state)=>state.user.user)
 
   //TODO hadnlemesgg
 
 
   const setContactData = (data) => {
+    console.log("Recentttttttttttttttt",data)
     dispatch(
       userRecent({
         recent: data,
@@ -39,8 +42,12 @@ const Chats = ({ recent, activeChat }) => {
   }, [recent]);
 
   useEffect(() => {
+    if(user?.id){
+      console.log("emmitting fetch")
     socket.emit("fetchAllConnection");
    
+    }
+
     socket.on("user_connect_data", setContactData);
 
     return () => {
@@ -48,7 +55,7 @@ const Chats = ({ recent, activeChat }) => {
       socket.off("user_connect_data", setContactData);
       socket.off("fetchAllConnection");
     };
-  }, []);
+  }, [user?.id]);
 
   const handleChange = (e) => {
     setSearchChat(e.target.value);

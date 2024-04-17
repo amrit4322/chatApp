@@ -111,6 +111,7 @@ function initializeSocket(server: Server): SocketIOServer {
 
     //on login
     socket.on("login", (id: string) => {
+      console.log("loginnnn")
       userStatus[id] = { socketId: socket.id, status: true };
       console.log("inaidw ", id);
 
@@ -395,7 +396,7 @@ function initializeSocket(server: Server): SocketIOServer {
 
     
     socket.on("end_call_video", (id: string) => {
-      const userTo: string = userStatus[id].socketId;
+      const userTo: string = userStatus[id]?.socketId;
       const userfrom = getUserIdBySocketId(socket.id);
       offers = offers.filter(offer => offer.offererId !== id);
       offers = offers.filter(offer => offer.offererId !== userfrom);

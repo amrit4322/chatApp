@@ -30,11 +30,25 @@ const Index = ({ userOnline, activeChat }) => {
   console.log("orrrrrrrrrrrrrr", connectedUsers);
   const [acceptedVideo, setIsAcceptedVideo] = useState(false);
   const [acceptedAudio, setIsAcceptedAudio] = useState(false);
+  const [isLogin, setIsLogin] = useState(false);
   const [audioCall, setIsAudioCall] = useState(false);
   // const filteredUsers = connectedUsers.filter(user => user.id === id);
   const user = useSelector((state) => state.user.user);
   const [offer,setOffer] = useState(null)
   
+  const showNotification=(data)=> {
+    let options = {
+      body: data? data: "testing",
+      icon: 'http://10.10.1.75:3005/static/media/logo.e41f6087382055646c1c02d0a63583d5.svg?',
+      dir: 'ltr',
+    };
+
+    let notification = new Notification('ConnectUs', options);
+
+    // setTimeout(()=>{
+    //   notification.close();
+    // },5000)
+  }
   const setToast = (type, data) => {
     console.log("setToast cALLLLLED");
     toast[type](
@@ -61,6 +75,8 @@ const Index = ({ userOnline, activeChat }) => {
       const filteredUsers = connectedUsers.filter((user) => user.id === data);
       setOffer(offer)
       setIncomingVideo(filteredUsers);
+      showNotification("Incomming Video Call ")
+
     });
     socket.on("user_connect_request_audio", (data,offer) => {
 
@@ -69,6 +85,7 @@ const Index = ({ userOnline, activeChat }) => {
       console.log("filereeee",filteredUsers)
       setOffer(offer)
       setIncomingAudio(filteredUsers);
+      showNotification("Incomming Audio Call ")
     });
     return () => {
       socket.off("user_connect_request_video");
@@ -77,6 +94,7 @@ const Index = ({ userOnline, activeChat }) => {
   }, [incomingVideo, incomingAudio, acceptedVideo]);
 
   useEffect(()=>{
+   
     if(connectedVideo){
       const filteredUsers = connectedUsers.filter((user) => user.id === activeChat?.id);
       console.log("connecteddddd ",filteredUsers)
@@ -92,6 +110,20 @@ const Index = ({ userOnline, activeChat }) => {
     }
   },[connectedVideo,connectedAudio])
   useEffect(() => {
+
+    if (!("Notification" in window)) {
+      console.log("Browser does not support desktop notification");
+    } else {
+      console.log("Browser support it")
+      Notification.requestPermission();
+    }
+    if (user?.id) {
+      console.log("emmitting loginnnnnnnnnnnnn");
+      socket.emit("login", user.id);
+      setIsLogin(true)
+    }else{
+      console.log("emmitting failed")
+    }
     socket.on("inviteNotification", (data) => {
       setToast("success", data);
       console.log("notified");
@@ -115,14 +147,12 @@ const Index = ({ userOnline, activeChat }) => {
       }, 1000);
     });
     return () => {
+      socket.off("login");
       socket.off("inviteNotification");
     };
-  }, []);
+  }, [user?.id]);
   useEffect(() => {
-    if (user?.id) {
-      console.log("emmitting loginnnnnnnnnnnnn");
-      socket.emit("login", user.id);
-    }
+   
 
     socket.on("removeNotification", (data) => {
       console.log("notification", data);
@@ -165,12 +195,13 @@ const Index = ({ userOnline, activeChat }) => {
     return () => {
       socket.off("notificationAccepted");
       socket.off("removeNotification");
-      socket.off("login");
     };
   }, [inviteAccepted]);
 
-  return (
+  return (<>
+    {isLogin &&
     <React.Fragment>
+
       {/* chat left sidebar */}
       <ChatLeftSidebar recentChatList={userOnline} />
       <ToastContainer />
@@ -207,6 +238,8 @@ const Index = ({ userOnline, activeChat }) => {
         </div>
       )}
     </React.Fragment>
+}
+</>
   );
 };
 
