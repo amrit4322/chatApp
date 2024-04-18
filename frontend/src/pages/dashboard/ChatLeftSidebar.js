@@ -13,6 +13,7 @@ import Invites from './Tabs/Invites';
 
 const ChatLeftSidebar=(props)=> {
     const activeTab = props.activeTab;
+    console.log("propssssssssss",props)
 
     return (
         <div className="chat-leftsidebar me-lg-1">
@@ -29,7 +30,7 @@ const ChatLeftSidebar=(props)=> {
                 {/* Start chats tab-pane  */}
                 <TabPane tabId="chat" id="pills-chat">
                     {/* chats content */}
-                    <Chats recentChatList={props.recentChatList} />
+                    <Chats  />
                 </TabPane>
                 {/* End chats tab-pane */}
 

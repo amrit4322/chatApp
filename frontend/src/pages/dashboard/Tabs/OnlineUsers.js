@@ -19,15 +19,16 @@ const OnlineUsers = () => {
   const userID = useSelector((state)=>state.user.user)
   const connectedUsers = useSelector((state)=>state.user.connectedUsers)
   
+  function broadCastOnline(data){
+    console.log("broadCastOnline",data)
+    const connectedUserIds = connectedUsers.map(user => user.id);
+    const filteredData = data.filter(user => connectedUserIds.includes(user));
+    setOnlineUsers(filteredData)
+  }
   useEffect(()=>{
-    function broadCastOnline(data){
-      const connectedUserIds = connectedUsers.map(user => user.id);
-      const filteredData = data.filter(user => connectedUserIds.includes(user));
-      setOnlineUsers(filteredData)
-    }
     socket.on("userStatusUpdate", broadCastOnline)
     return()=>{
-      socket.off("userStatusUpdate",broadCastOnline)
+      socket.off("userStatusUpdate")
     }
   },[])
 

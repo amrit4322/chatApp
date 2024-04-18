@@ -6,8 +6,9 @@ import { Op } from "sequelize";
 import userService from "../user/user.service";
 import { emitToSocket } from "../../helpers/socket/socket.helper";
 import { MsgData } from "../../interfaces/chat.interface";
+import fs from "fs"
 const { ResMsg, Utilities } = Helper;
-import fs from 'fs';
+
 class ChatService {
   public async fetchAll(): Promise<unknown> {
     const allUser = await ProcessChatSchema.Read.findAll();

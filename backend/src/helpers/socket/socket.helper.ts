@@ -80,8 +80,9 @@ function broadcastStatus() {
     .filter(([userId, data]) => data.status === true)
     .map(([userId]) => userId);
 
-  io.emit("userStatusUpdate", onlineUsers);
+  
   console.log("online users ", userStatus);
+  return onlineUsers;
 }
 
 //get userId by socketId
@@ -117,7 +118,8 @@ function initializeSocket(server: Server): SocketIOServer {
 
       updateStatus(id, true);
       // socket.emit("status",{id,"status":"online"})
-      broadcastStatus();
+      let onlineUsers = broadcastStatus();
+      io.emit("userStatusUpdate", onlineUsers);
     });
 
     socket.on("getNotification", async (id: string) => {
@@ -440,7 +442,8 @@ function initializeSocket(server: Server): SocketIOServer {
         userStatus[id] = { socketId: socket.id, status: false };
         updateStatus(id, false);
       }
-      broadcastStatus();
+      let onlineUsers = broadcastStatus();
+      io.emit("userStatusUpdate", onlineUsers);
       // Additional logic for disconnect
     });
   });

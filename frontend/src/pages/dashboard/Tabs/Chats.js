@@ -146,7 +146,7 @@ const Chats = ({ recent, activeChat }) => {
         <h5 className="mb-3 px-3 font-size-16">Recent</h5>
         <SimpleBar style={{ maxHeight: "100%" }} className="chat-message-list">
           <ul className="list-unstyled chat-list chat-user-list" id="chat-list">
-            {recent?.map((chat, key) => (
+            {filteredChatList?.map((chat, key) => (
               <ChatItem
                 key={key}
                 chat={chat}

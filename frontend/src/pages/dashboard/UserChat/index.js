@@ -45,7 +45,7 @@ const UserChat = (props) => {
   const dispatch = useDispatch();
   //demo conversation messages
   //userType must be required
-  const [allUsers] = useState(props.recentChatList);
+
   const [chatMessages, setchatMessages] = useState([]);
   const apiInstance = new API();
   const token = useSelector((state) => state.user.token);
@@ -267,7 +267,7 @@ const UserChat = (props) => {
                       <span className="title">Today</span>
                     </div>
                   </li>
-                ) : props.recentChatList[props.active_user]?.isGroup ===
+                ) : props.userOnline[props.active_user]?.isGroup ===
                   true ? (
                   <li
                     key={key}
