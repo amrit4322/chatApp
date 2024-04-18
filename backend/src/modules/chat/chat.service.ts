@@ -7,6 +7,7 @@ import userService from "../user/user.service";
 import { emitToSocket } from "../../helpers/socket/socket.helper";
 import { MsgData } from "../../interfaces/chat.interface";
 const { ResMsg, Utilities } = Helper;
+import fs from 'fs';
 class ChatService {
   public async fetchAll(): Promise<unknown> {
     const allUser = await ProcessChatSchema.Read.findAll();
@@ -201,7 +202,22 @@ class ChatService {
     return connectedUsers;
   }
 
+  public async deleteMessage(messageId: string): Promise<unknown> {
+    const chatMessage = await ChatSchema.Write.findByPk(messageId);
 
+    if (!chatMessage) throw 'No message found'
+    let deletedCount = 0;
+
+    if (chatMessage.isFileMessage && chatMessage.data) {
+      // Delete the associated file
+        fs.unlinkSync(chatMessage.data);
+        deletedCount = await ChatSchema.Write.destroy({ where: { id: messageId } });
+    } else {
+      deletedCount = await ChatSchema.Write.destroy({ where: { id: messageId } });
+    }
+
+    return { deletedCount: deletedCount > 0 }; // Return true if any message was deleted
+  }
   
 }
 

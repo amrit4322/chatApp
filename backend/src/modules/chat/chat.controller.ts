@@ -54,5 +54,17 @@ class ChatController{
 
         }
     }
+
+    public async deleteChatMessage(req:Request,res:Response){
+        try{
+            let data :InterFace.ChatInterface.ChatInterface= req.body;
+            const result = await ChatService.deleteMessage(data.id);
+            
+            return HelperResponse.sendSuccess(res, HelperResponse.createResponse(200, "Delete successful..!!", { result }));
+        }catch(error:any){
+            Logger.createLog('error', 'error in deleting message ', error);
+            return HelperResponse.sendError(res, { message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG });
+        }
+    }
 }
 export default new ChatController();
