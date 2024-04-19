@@ -406,6 +406,7 @@ const AudioCallModal = ({
                       id="local-audio"
                       ref={localVideoEl}
                       autoPlay
+                      muted
                       // controls="volume fullscreen"
                     ></audio>
                     <audio

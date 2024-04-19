@@ -47,6 +47,7 @@ const UserChat = (props) => {
   //userType must be required
 
   const [chatMessages, setchatMessages] = useState([]);
+  const [updateMsg, setUpdateMsg] = useState(false);
   const apiInstance = new API();
   const token = useSelector((state) => state.user.token);
   const setMessageData = (data) => {
@@ -65,11 +66,10 @@ const UserChat = (props) => {
       "props.activeChat?.id === data.id",
       props.activeChat?.id === data.author
     );
-    let incomingData =  { ...data };;
-    incomingData.isFileMessage = incomingData.isFileMessage=="true";
-    incomingData.isImageMessage = incomingData.isImageMessage=="true";
+    let incomingData = { ...data };
+    incomingData.isFileMessage = incomingData.isFileMessage == "true";
+    incomingData.isImageMessage = incomingData.isImageMessage == "true";
     console.log("incomingData ", incomingData);
-
 
     if (props.activeChat?.id === data.author) {
       setchatMessages([...chatMessages, incomingData]);
@@ -86,6 +86,10 @@ const UserChat = (props) => {
     setchatMessages(props.chats);
   };
 
+  const handleSeen = () =>{
+    console.log("seeeeeeeeeeeeeeeen");
+    
+  }
   // Generate a UUID
   function generateMessageId() {
     return uuidv4();
@@ -93,16 +97,26 @@ const UserChat = (props) => {
   socket.on("message", handleIncomingMessage);
 
   useEffect(() => {
+    socket.on("updatePage", () => {
+      setUpdateMsg(true);
+      setTimeout(() => {
+        setUpdateMsg(false);
+      }, 1000);
+    });
     if (props.activeChat?.id) {
       socket.emit("fetch_message", props.activeChat.id);
     }
     socket.on("user_message_data", setMessageData);
+
+    socket.on("message_seen",handleSeen);
     return () => {
       socket.off("fetch_message");
       socket.off("user_message_data");
       socket.off("message");
+      socket.off("updatePage");
+      socket.off("message_seen")
     };
-  }, [props.activeChat?.id]);
+  }, [props.activeChat?.id, updateMsg]);
 
   // useEffect(()=>{
   //   dispatch(
@@ -235,14 +249,26 @@ const UserChat = (props) => {
     }
   }
 
-  const deleteMessage = (id) => {
-    let conversation = chatMessages;
+  const deleteMessage = async (id) => {
+    console.log("testing ", id);
 
-    var filtered = conversation.filter(function (item) {
-      return item.id !== id;
-    });
+    const response = await apiInstance.remove(`/chat/deleteChat/${id}`, token);
+    if (response.status) {
+      console.log("success");
+      let conversation = chatMessages;
 
-    setchatMessages(filtered);
+      var filtered = conversation.filter(function (item) {
+        return item.id !== id;
+      });
+
+      setchatMessages(filtered);
+      dispatch(
+        userChats({
+          chats: filtered,
+        })
+      );
+      socket.emit("updatePageOf", props.activeChat.id);
+    }
   };
 
   return (
@@ -253,7 +279,7 @@ const UserChat = (props) => {
           <UserHead />
 
           <SimpleBar
-            style={{ maxHeight: "100%" ,flexDirection: "column-reverse"}}
+            style={{ maxHeight: "100%", flexDirection: "column-reverse" }}
             ref={ref}
             className="chat-conversation p-3 p-lg-4 "
             id="messages"
@@ -267,8 +293,7 @@ const UserChat = (props) => {
                       <span className="title">Today</span>
                     </div>
                   </li>
-                ) : props.userOnline[props.active_user]?.isGroup ===
-                  true ? (
+                ) : props.userOnline[props.active_user]?.isGroup === true ? (
                   <li
                     key={key}
                     className={chat.userType === "sender" ? "right" : ""}
@@ -507,14 +532,24 @@ const UserChat = (props) => {
                                 </span>
                               </p>
                             )}
-                            {!chat?.isTyping && (
-                              <p className="chat-time mb-0">
-                                <i className="ri-time-line align-middle"></i>{" "}
-                                <span className="align-middle">
-                                  {format(new Date(chat.timestamp), "HH:mm a")}
-                                </span>
-                              </p>
-                            )}
+                            {!chat?.isTyping &&
+                              chat?.author === props.user.id && (
+                                <p className="chat-time mb-0">
+                                  <i
+                                    className={`ri-${
+                                      chat.seen
+                                        ? "check-double-fill text-info"
+                                        : "check-double-fill"
+                                    } align-middle me-1`}
+                                  ></i>
+                                  <span className="align-middle">
+                                    {format(
+                                      new Date(chat.timestamp),
+                                      "HH:mm a"
+                                    )}
+                                  </span>
+                                </p>
+                              )}
                           </div>
                           {!chat?.isTyping && (
                             <UncontrolledDropdown className="align-self-start">
@@ -530,16 +565,22 @@ const UserChat = (props) => {
                                   {t("Copy")}{" "}
                                   <i className="ri-file-copy-line float-end text-muted"></i>
                                 </DropdownItem>
-                                <DropdownItem>
+                                {/* <DropdownItem>
                                   {t("Save")}{" "}
                                   <i className="ri-save-line float-end text-muted"></i>
-                                </DropdownItem>
+                                </DropdownItem> */}
                                 <DropdownItem onClick={toggle}>
                                   Forward{" "}
                                   <i className="ri-chat-forward-line float-end text-muted"></i>
                                 </DropdownItem>
                                 <DropdownItem
                                   onClick={() => deleteMessage(chat.id)}
+                                  style={{
+                                    display:
+                                      chat?.author === props.user.id
+                                        ? "block"
+                                        : "none",
+                                  }}
                                 >
                                   Delete{" "}
                                   <i className="ri-delete-bin-line float-end text-muted"></i>

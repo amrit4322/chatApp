@@ -122,6 +122,15 @@ function initializeSocket(server: Server): SocketIOServer {
       io.emit("userStatusUpdate", onlineUsers);
     });
 
+    socket.on("fetch_online",(ack)=>{
+      console.log("emiting all online")
+      let onlineUsers =  broadcastStatus();
+      ack({
+        onlineUsers: onlineUsers
+      });
+     
+    })
+
     socket.on("getNotification", async (id: string) => {
       const notification = await getNotification(id);
       if (notification.status) {
@@ -164,6 +173,7 @@ function initializeSocket(server: Server): SocketIOServer {
     //on message sending
     socket.on("message_send", (data, id) => {
       const userID = getUserIdBySocketId(socket.id);
+      console.log("messagesend ",userID)
       if (userID) {
         const msg: ChatInterface.ChatInterface = {
           id: data.id,
@@ -198,6 +208,16 @@ function initializeSocket(server: Server): SocketIOServer {
         connected[id] = receiverId;
       }
     });
+
+    socket.on("updatePageOf",(id)=>{
+      const socketId = userStatus[id].socketId;
+      console.log("in Update")
+      if(socketId){
+      console.log("send Update")
+
+        socket.to(socketId).emit("updatePage")
+      }
+    })
 
     socket.on("fetchAllConnection", async () => {
       const userId = getUserIdBySocketId(socket.id);
@@ -479,4 +499,5 @@ export {
   socket,
   emitToSocket,
   emitToAll,
+  connected,
 };

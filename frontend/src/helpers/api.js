@@ -75,7 +75,7 @@ class API {
         method: "GET",
         headers: {
           "api-access-token": token,
-      
+          
         },
       });
       const blob = await response.blob();
@@ -149,12 +149,12 @@ class API {
     }
   }
   // Function to make a DELETE request
-  async remove(endpoint) {
+  async remove(endpoint,token=null) {
     try {
       const response = await fetch(this.baseURL + endpoint, {
         method: "DELETE",
         headers: {
-          "Content-type": "application/json",
+          "api-access-token": token,
         },
       });
       const data = await response.json();
@@ -165,6 +165,7 @@ class API {
       throw error;
     }
   }
+
 }
 
 export default API;

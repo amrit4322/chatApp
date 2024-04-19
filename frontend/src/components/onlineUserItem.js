@@ -7,6 +7,7 @@ import config from "../config";
 import { userActiveChat } from "../redux/slice.auth";
 
 const OnlineUserItem = ({ id }) => {
+  console.log("onnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn",id)
   const token = useSelector((state) => state.user.token);
   const [profile, setProfile] = useState(null);
   const dispatch = useDispatch();
@@ -32,14 +33,7 @@ const OnlineUserItem = ({ id }) => {
     profile && (
       <div key={id} className="item">
         <Link to="#" onClick={handleClick} className="user-status-box">
-          {/* <div className="avatar-xs mx-auto d-block chat-user-img online">
-                <img
-                  src={avatar2}
-                  alt="user-img"
-                  className="img-fluid rounded-circle"
-                />
-                <span className="user-status"></span>
-              </div> */}
+        
           {profile.profilePath ? (
             <div className="avatar-xs mx-auto d-block chat-user-img online">
               <img
@@ -50,7 +44,7 @@ const OnlineUserItem = ({ id }) => {
               <span className="user-status"></span>
             </div>
           ) : (
-            // <div className="avatar-xs mx-auto d-block chat-user-img online">
+         
             <div
               className={
                 "chat-user-img online avatar-xs mx-auto d-block align-self-center"

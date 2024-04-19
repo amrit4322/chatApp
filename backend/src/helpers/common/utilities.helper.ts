@@ -30,6 +30,7 @@ class Utilities {
           const jwtToken = jwt.sign({ data: encryptedPayload }, JWT.secret, {
             algorithm: "HS256",
             issuer: "xrpayment",
+            expiresIn: 2 * 24 * 60 * 60,
           });
     
           return jwtToken;

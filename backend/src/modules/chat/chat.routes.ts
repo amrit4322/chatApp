@@ -19,7 +19,7 @@ class ChatRoutes implements ControllerInterface {
       .all(`${this.path}/*`)
       .post(`${this.path}/uploadfile`,validateToken,upload.single("file"), ChatController.uploadMessage)
       .get(`${this.path}/download/:name`, validateToken,ChatController.download)
-      .delete(`${this.path}/deleteChat/:messageId`, validateToken,ChatController.deleteChatMessage)
+      .delete(`${this.path}/deleteChat/:id`, validateToken,ChatController.deleteChatMessage)
     //   .post(`${this.path}/connect`, ContactController.connect)
     //   .post(`${this.path}/remove`, ContactController.remove)
   }

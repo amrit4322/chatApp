@@ -32,6 +32,7 @@ import { GoogleLogin } from "@react-oauth/google";
 import API from "../../helpers/api";
 import { loginUser, userData } from "../../redux/slice.auth";
 import ToastComponent from "../../components/ToastComponent";
+import { socket } from "../../helpers/socket";
 /**
  * Login component
  * @param {*} props
@@ -84,7 +85,9 @@ const Login = (props) => {
               })
             );
           }
-
+          console.log("innnnnnnnnnnnnnnn login")
+          socket.connect()
+          socket.emit("login",response.message.data.id)
           props.router.navigate("/dashboard");
           ToastComponent({
             message: "Logged in successfully",

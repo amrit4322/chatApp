@@ -36,6 +36,7 @@ const Index = ({ userOnline, activeChat }) => {
   const user = useSelector((state) => state.user.user);
   const [offer,setOffer] = useState(null)
   
+  
   const showNotification=(data)=> {
     let options = {
       body: data? data: "testing",
@@ -111,6 +112,9 @@ const Index = ({ userOnline, activeChat }) => {
   },[connectedVideo,connectedAudio])
   useEffect(() => {
 
+    if(!socket.connected){
+      socket.connect();
+    }
     if (!("Notification" in window)) {
       console.log("Browser does not support desktop notification");
     } else {
@@ -197,6 +201,15 @@ const Index = ({ userOnline, activeChat }) => {
       socket.off("removeNotification");
     };
   }, [inviteAccepted]);
+
+  useEffect(()=>{
+    if(activeChat.id){
+    socket.emit("is_connected_with",activeChat.id)
+    }
+    return ()=>{
+      socket.off("is_connected_with")
+    }
+  },[activeChat])
 
   return (<>
     {isLogin &&

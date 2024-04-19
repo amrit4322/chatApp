@@ -6,7 +6,7 @@ import { Op } from "sequelize";
 import userService from "../user/user.service";
 import { emitToSocket } from "../../helpers/socket/socket.helper";
 import { MsgData } from "../../interfaces/chat.interface";
-import fs from "fs"
+import fs from "fs";
 const { ResMsg, Utilities } = Helper;
 
 class ChatService {
@@ -27,28 +27,28 @@ class ChatService {
 
   public async insertMessageWithFile(
     data: InterFace.ChatInterface.ChatInterface,
-    file:any
+    file: any
   ): Promise<unknown> {
     // console.log("dataaaaaaaaaaaaa is ",data)
     // console.log("file ",file)
-    const filePath = "uploads/"+file.filename
-    data.data = JSON.stringify({name:filePath,size:file.size});
+    const filePath = "uploads/" + file.filename;
+    data.data = JSON.stringify({ name: filePath, size: file.size });
     // console.log("datat aaa",data)
-    
+
     const d = await ChatSchema.Write.create(data);
     // console.log("ddddddddddddddd",d)
-    let messageObj:MsgData = {
+    let messageObj: MsgData = {
       id: data.id,
-      message: data.data, 
+      message: data.data,
       timestamp: data.timestamp,
       author: data.senderId,
-      isFileMessage: data.isFileMessage, 
+      isFileMessage: data.isFileMessage,
       isImageMessage: data.isImageMessage,
-      seen: data.seen, 
+      seen: data.seen,
     };
     // socket.to(socketId).emit("message", data);
-    emitToSocket(data.receiverId,"message",messageObj)
-    return { success: true ,data:d};
+    emitToSocket(data.receiverId, "message", messageObj);
+    return { success: true, data: d };
   }
   public async fetchMessages(id: string, connectId: string): Promise<unknown> {
     if (!connectId || !id) {
@@ -176,7 +176,6 @@ class ChatService {
       ],
     });
 
-    
     allMessages.forEach((item) => {
       if (item.senderId === userId) {
         const receiver = allUsers.find(
@@ -204,22 +203,23 @@ class ChatService {
   }
 
   public async deleteMessage(messageId: string): Promise<unknown> {
-    const chatMessage = await ChatSchema.Write.findByPk(messageId);
+    console.log("message id  ", messageId)
+    const chatMessage = await ChatSchema.Write.findOne({where:{id:messageId}});
 
-    if (!chatMessage) throw 'No message found'
+    if (!chatMessage)  throw ResMsg.errors.ERROR_FETCHING_MESSAGES;
     let deletedCount = 0;
 
     if (chatMessage.isFileMessage && chatMessage.data) {
       // Delete the associated file
-        fs.unlinkSync(chatMessage.data);
-        deletedCount = await ChatSchema.Write.destroy({ where: { id: messageId } });
-    } else {
-      deletedCount = await ChatSchema.Write.destroy({ where: { id: messageId } });
+       fs.unlink(chatMessage.data,(err)=>{
+        console.log("error in deleting file ",err)
+      });
     }
 
-    return { deletedCount: deletedCount > 0 }; // Return true if any message was deleted
+    deletedCount = await ChatSchema.Write.destroy({ where: { id: messageId } });
+
+    return { success: true }; // Return true if any message was deleted
   }
-  
 }
 
 export default new ChatService();

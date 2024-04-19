@@ -405,6 +405,7 @@ const VideoCallModal = ({
                       ref={localVideoEl}
                       autoPlay
                       playsInline
+                      muted
                       // controls="volume fullscreen"
                     ></video>
                     <video

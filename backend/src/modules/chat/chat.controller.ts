@@ -6,65 +6,72 @@ import * as InterFace from "../../interfaces";
 import upload from "../../config/multer";
 import path from "path";
 
+const { Response: HelperResponse, ResMsg, Logger } = Helper;
 
+class ChatController {
+  public async connect(req: Request, res: Response) {
+    try {
+      const result = await ChatService.fetchAll();
 
-const {Response :HelperResponse,ResMsg,Logger} = Helper;
-
-class ChatController{
-    public async connect(req:Request,res:Response){
-        try{
-            const result = await ChatService.fetchAll();
-            
-            return HelperResponse.sendSuccess(res, HelperResponse.createResponse(200, "Fetch successful..!!", { result }));
-        }catch(error:any){
-            Logger.createLog('error', 'error in fetching ', error);
-            return HelperResponse.sendError(res, { message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG });
-        }
+      return HelperResponse.sendSuccess(
+        res,
+        HelperResponse.createResponse(200, "Fetch successful..!!", { result })
+      );
+    } catch (error: any) {
+      Logger.createLog("error", "error in fetching ", error);
+      return HelperResponse.sendError(res, {
+        message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
+      });
     }
-    public async uploadMessage(req:Request,res:Response){
-        try{
-            let data :InterFace.ChatInterface.ChatInterface= req.body;
-            let file :any= req.file;
-            const result = await ChatService.insertMessageWithFile(data,file);
-            
-            return HelperResponse.sendSuccess(res, HelperResponse.createResponse(200, "Fetch successful..!!", { result }));
-        }catch(error:any){
-            Logger.createLog('error', 'error in fetching ', error);
-            return HelperResponse.sendError(res, { message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG });
-        }
-    }
+  }
+  public async uploadMessage(req: Request, res: Response) {
+    try {
+      let data: InterFace.ChatInterface.ChatInterface = req.body;
+      let file: any = req.file;
+      const result = await ChatService.insertMessageWithFile(data, file);
 
-    public async download(req:Request,res:Response){
-        try{
-            const fileName = req.params.name;
-            
-          
-            const directoryPath = path.join(__dirname, "../../uploads/")
-            console.log("path is ",directoryPath)
-            res.download(directoryPath + fileName, fileName, (err) => {
-              if (err) {
-                res.status(500).send({
-                  message: "Could not download the file. " + err,
-                });
-              }
-            });
-          
-        }
-        catch(error:any){
-
-        }
+      return HelperResponse.sendSuccess(
+        res,
+        HelperResponse.createResponse(200, "Fetch successful..!!", { result })
+      );
+    } catch (error: any) {
+      Logger.createLog("error", "error in fetching ", error);
+      return HelperResponse.sendError(res, {
+        message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
+      });
     }
+  }
 
-    public async deleteChatMessage(req:Request,res:Response){
-        try{
-            let data :InterFace.ChatInterface.ChatInterface= req.body;
-            const result = await ChatService.deleteMessage(data.id);
-            
-            return HelperResponse.sendSuccess(res, HelperResponse.createResponse(200, "Delete successful..!!", { result }));
-        }catch(error:any){
-            Logger.createLog('error', 'error in deleting message ', error);
-            return HelperResponse.sendError(res, { message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG });
+  public async download(req: Request, res: Response) {
+    try {
+      const fileName = req.params.name;
+
+      const directoryPath = path.join(__dirname, "../../uploads/");
+      console.log("path is ", directoryPath);
+      res.download(directoryPath + fileName, fileName, (err) => {
+        if (err) {
+          res.status(500).send({
+            message: "Could not download the file. " + err,
+          });
         }
+      });
+    } catch (error: any) {}
+  }
+
+  public async deleteChatMessage(req: Request, res: Response) {
+    try {
+      const id = req.params.id;
+      const result = await ChatService.deleteMessage(id);
+      return HelperResponse.sendSuccess(
+        res,
+        HelperResponse.createResponse(200, "Delete successful..!!", { result })
+      );
+    } catch (error: any) {
+      Logger.createLog("error", "error in deleting message ", error);
+      return HelperResponse.sendError(res, {
+        message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
+      });
     }
+  }
 }
 export default new ChatController();

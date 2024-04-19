@@ -11,16 +11,33 @@ import OnlineUsers from "./OnlineUsers";
 import ChatItem from "../../../components/chatItem";
 import { socket } from "../../../helpers/socket";
 import { userActiveChat, userChats, userConnected, userRecent } from "../../../redux/slice.auth";
+import API from "../../../helpers/api";
 
-const Chats = ({ recent, activeChat }) => {
+const Chats = ({ recent, activeChat ,activeTab}) => {
   console.log("recent data ",recent)
   const [searchChat, setSearchChat] = useState("");
   const [filteredChatList, setFilteredChatList] = useState(recent || null);
   const dispatch = useDispatch();
   const user = useSelector((state)=>state.user.user)
-
+  const apiInstance = new API();
+  const token = useSelector((state)=>state.user.token)
+  const [showOnline,setShowOnline]= useState(false);
   //TODO hadnlemesgg
 
+  const fetchContacts = async () => {
+    // console.log("token is",token)
+    const response = await apiInstance.getWithToken("/contact/find", token);
+    if (response.status) {
+      const contactsData = response.message.data;
+
+      console.log("emitting ackk cont  ",contactsData)
+      dispatch(userConnected({
+        connectedUsers:response.message.data
+      }))
+      setShowOnline(true)
+     
+    }
+  };
 
   const setContactData = (data) => {
     console.log("Recentttttttttttttttt",data)
@@ -42,6 +59,7 @@ const Chats = ({ recent, activeChat }) => {
   }, [recent]);
 
   useEffect(() => {
+    fetchContacts()
     if(user?.id){
       console.log("emmitting fetch")
     socket.emit("fetchAllConnection");
@@ -55,7 +73,7 @@ const Chats = ({ recent, activeChat }) => {
       socket.off("user_connect_data", setContactData);
       socket.off("fetchAllConnection");
     };
-  }, [user?.id]);
+  }, [user?.id,activeTab]);
 
   const handleChange = (e) => {
     setSearchChat(e.target.value);
@@ -86,6 +104,7 @@ const Chats = ({ recent, activeChat }) => {
 
     if (chatList) {
       const li = chatList.getElementsByTagName("li");
+   
       for (const element of li) {
         if (element.classList.contains("active")) {
           element.classList.remove("active");
@@ -103,10 +122,6 @@ const Chats = ({ recent, activeChat }) => {
       currentli.classList.add("active");
     }
 
-    const userChat = document.getElementsByClassName("user-chat");
-    if (userChat) {
-      userChat[0].classList.add("user-chat-show");
-    }
 
     const unread = document.getElementById("unRead" + chat.id);
     if (unread) {
@@ -139,8 +154,8 @@ const Chats = ({ recent, activeChat }) => {
       </div>
 
       {/* online users */}
-      <OnlineUsers />
-
+      {showOnline && <OnlineUsers />
+}
       {/* Start chat-message-list  */}
       <div className="px-2">
         <h5 className="mb-3 px-3 font-size-16">Recent</h5>
@@ -163,8 +178,8 @@ const Chats = ({ recent, activeChat }) => {
 };
 
 const mapStateToProps = (state) => {
-  const { activeChat, recent } = state.user;
-  return { activeChat, recent };
+  const { activeChat, recent ,activeTab} = state.user;
+  return { activeChat, recent ,activeTab};
 };
 
 export default connect(mapStateToProps)(Chats);

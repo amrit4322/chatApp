@@ -25,10 +25,21 @@ const OnlineUsers = () => {
     const filteredData = data.filter(user => connectedUserIds.includes(user));
     setOnlineUsers(filteredData)
   }
-  useEffect(()=>{
+
+  const fetchOnline=async ()=>{
+    let response =await socket.emitWithAck("fetch_online")
+    console.log("response emitAckkkkk",response)
+    console.log("response emitAckkkkk2",connectedUsers)
+if(response.onlineUsers){
+  broadCastOnline(response.onlineUsers);
+}
+  }
+  useEffect( ()=>{
+    fetchOnline()
     socket.on("userStatusUpdate", broadCastOnline)
     return()=>{
       socket.off("userStatusUpdate")
+      socket.off("fetch_online")
     }
   },[])
 
