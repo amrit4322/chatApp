@@ -44,7 +44,7 @@ const Index = ({ userOnline, activeChat }) => {
       dir: 'ltr',
     };
 
-    let notification = new Notification('ConnectUs', options);
+    new Notification('ConnectUs', options);
 
     // setTimeout(()=>{
     //   notification.close();
@@ -155,6 +155,7 @@ const Index = ({ userOnline, activeChat }) => {
       socket.off("inviteNotification");
     };
   }, [user?.id]);
+
   useEffect(() => {
    
 
@@ -205,6 +206,7 @@ const Index = ({ userOnline, activeChat }) => {
   useEffect(()=>{
     if(activeChat.id){
     socket.emit("is_connected_with",activeChat.id)
+    socket.emit("seen_msg",activeChat.id,user.id)
     }
     return ()=>{
       socket.off("is_connected_with")

@@ -171,7 +171,7 @@ function initializeSocket(server: Server): SocketIOServer {
       }
     });
     //on message sending
-    socket.on("message_send", (data, id) => {
+    socket.on("message_send", (data, id,ack) => {
       const userID = getUserIdBySocketId(socket.id);
       console.log("messagesend ",userID)
       if (userID) {
@@ -190,12 +190,16 @@ function initializeSocket(server: Server): SocketIOServer {
           data.seen = true;
           console.log("inside seen ");
           io.to(socket.id).emit("message_seen");
+
         }
         if (userStatus[id]?.status) {
           const socketId = userStatus[id].socketId;
           socket.to(socketId).emit("message", data);
         }
         insertMessage(msg);
+        ack({
+          seen:data.seen
+        })
       } else {
         console.log("some other function");
       }

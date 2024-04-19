@@ -4,7 +4,7 @@ import { Helper } from "../../helpers";
 import * as InterFace from "../../interfaces";
 import { Op } from "sequelize";
 import userService from "../user/user.service";
-import { emitToSocket } from "../../helpers/socket/socket.helper";
+import { connected, emitToSocket } from "../../helpers/socket/socket.helper";
 import { MsgData } from "../../interfaces/chat.interface";
 import fs from "fs";
 const { ResMsg, Utilities } = Helper;
@@ -34,8 +34,10 @@ class ChatService {
     const filePath = "uploads/" + file.filename;
     data.data = JSON.stringify({ name: filePath, size: file.size });
     // console.log("datat aaa",data)
-
-    const d = await ChatSchema.Write.create(data);
+    if (connected[data.receiverId] === data.senderId) {
+      data.seen = true;
+     
+    }
     // console.log("ddddddddddddddd",d)
     let messageObj: MsgData = {
       id: data.id,
@@ -46,6 +48,8 @@ class ChatService {
       isImageMessage: data.isImageMessage,
       seen: data.seen,
     };
+    
+    const d = await ChatSchema.Write.create(data);
     // socket.to(socketId).emit("message", data);
     emitToSocket(data.receiverId, "message", messageObj);
     return { success: true, data: d };

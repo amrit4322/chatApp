@@ -88,7 +88,12 @@ const UserChat = (props) => {
 
   const handleSeen = () =>{
     console.log("seeeeeeeeeeeeeeeen");
-    
+    setUpdateMsg(true);
+    setTimeout(() => {
+      setUpdateMsg(false);
+    }, 1000);
+
+
   }
   // Generate a UUID
   function generateMessageId() {
@@ -188,7 +193,10 @@ const UserChat = (props) => {
 
     //add message object to chat
     if (type === "textMessage") {
-      socket.emit("message_send", messageObj, props.activeChat.id);
+      let response = await socket.emitWithAck("message_send", messageObj, props.activeChat.id);
+      if(response.seen){
+        messageObj.seen = response.seen
+      }
     } else {
       console.log("testing of message", messageObj);
       const formData = new FormData();

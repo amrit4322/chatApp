@@ -165,12 +165,14 @@ const ChatInput = ({ addMessage, id }) => {
                       className="me-1 btn btn-link text-decoration-none font-size-16 btn-lg waves-effect"
                     >
                       <i className="ri-image-fill"></i>
+                      <div id="img-preview"></div>
                       <Input
                         onChange={(e) => handleImageChange(e)}
                         accept="image/*"
                         type="file"
                         name="fileInput"
                         size="60"
+                        id="image-file"
                       />
                     </Label>
                     <UncontrolledTooltip target="images" placement="top">
