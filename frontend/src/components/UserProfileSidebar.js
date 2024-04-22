@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import { Button, Card, Badge } from "reactstrap";
 
@@ -17,6 +17,7 @@ import { useTranslation } from "react-i18next";
 //image
 import avatar7 from "../assets/images/users/avatar-7.jpg";
 import { usersetSideBar } from "../redux/slice.auth";
+import config from "../config";
 
 const  UserProfileSidebar=(props) =>{
   const [isOpen1, setIsOpen1] = useState(true);
@@ -51,37 +52,53 @@ const  UserProfileSidebar=(props) =>{
     setIsOpen2(false);
   };
 
-  console.log("userrrrrrsidebarrrrrr",props.userSidebar)
+  console.log("userrrrrrsidebarrrrrr",props.userSideBar)
   // closes sidebar
   const closeuserSidebar = () => {
     // props.closeUserSidebar();
     console.log("closing user sidebar")
     dispatch(usersetSideBar({
-      userSidebar : false,
+      userSideBar : false,
     }))
     
   };
+  // useEffect(()=>{
+  //   console.log("trueeeee",props.userSideBar)
+  // },[props.userSideBar])
   return (
     <div
-        style={{ display: props.userSidebar ? "block" : "none" }}
+        style={{ display:"block"}}
         className="user-profile-sidebar"
       >
-        <div className="px-3 px-lg-4 pt-3 pt-lg-4">
-          <div className="user-chat-nav  text-end">
-            <Button
-              color="none"
-              type="button"
-              onClick={closeuserSidebar}
-              className="nav-btn"
-              id="user-profile-hide"
-            >
-              <i className="ri-close-line"></i>
-            </Button>
-          </div>
-        </div>
+        
 
         <div className="text-center p-4 border-bottom">
-          <div className="mb-4 d-flex justify-content-center">
+        {props.activeUser.profilePath ? (
+            <div className="avatar-xs mx-auto d-block chat-user-img online">
+              <img
+                src={`${config.BASE_URL}${props.activeUser.profilePath}`}
+                className="rounded-circle avatar-xs"
+                alt="pic"
+              />
+              <span className="user-status"></span>
+            </div>
+          ) : (
+         
+            <div
+              className={
+                "chat-user-img online avatar-xs mx-auto d-block align-self-center"
+              }
+            >
+              <div className="avatar-xs">
+                <span className="avatar-title rounded-circle bg-soft-primary text-primary">
+                  {props.activeUser.firstName.charAt(0)}
+                  {props.activeUser.lastName.charAt(0)}
+                </span>
+                <span className="user-status"></span>
+              </div>
+            </div>
+          )}
+          {/* <div className="mb-4 d-flex justify-content-center">
             {props.activeUser.profilePicture === "Null" ? (
               <div className="avatar-lg">
                 <span className="avatar-title rounded-circle bg-soft-primary text-primary font-size-24">
@@ -95,56 +112,63 @@ const  UserProfileSidebar=(props) =>{
                 alt="chatvia"
               />
             )}
-          </div>
+          </div> */}
 
           <h5 className="font-size-16 mb-1 text-truncate">
             {props.activeUser.firstName} {props.activeUser.lastName} 
           </h5>
           <p className="text-muted text-truncate mb-1">
             {(() => {
-              switch (props.activeUser.status) {
-                case "online":
-                  return (
-                    <>
-                      <i className="ri-record-circle-fill font-size-10 text-success me-1"></i>
-                    </>
-                  );
-
-                case "away":
-                  return (
-                    <>
-                      <i className="ri-record-circle-fill font-size-10 text-warning me-1"></i>
-                    </>
-                  );
-
-                case "offline":
-                  return (
-                    <>
-                      <i className="ri-record-circle-fill font-size-10 text-secondary me-1"></i>
-                    </>
-                  );
-
-                default:
-                  return;
+              if(props.activeUser.isOnline ){
+                return (
+                  
+                          <i className="ri-record-circle-fill font-size-10 text-success me-1">Active</i>
+                     
+                      );
+              }else{
+                return (
+                        <i className="ri-record-circle-fill font-size-10 text-secondary me-1">InActive</i>
+                      );
               }
+              // switch (props.activeUser.status) {
+              //   case "online":
+              //     return (
+              //       <>
+              //         <i className="ri-record-circle-fill font-size-10 text-success me-1"></i>
+              //       </>
+              //     );
+
+              //   case "away":
+              //     return (
+              //       <>
+              //         <i className="ri-record-circle-fill font-size-10 text-warning me-1"></i>
+              //       </>
+              //     );
+
+              //   case "offline":
+              //     return (
+              //       <>
+              //         <i className="ri-record-circle-fill font-size-10 text-secondary me-1"></i>
+              //       </>
+              //     );
+
+              //   default:
+              //     return;
+              // }
             })()}
-            Active
+           
           </p>
         </div>
         {/* End profile user */}
 
         {/* Start user-profile-desc */}
         <SimpleBar
-          style={{ maxHeight: "100%" }}
+          // style={{ maxHeight: "100%" }}
           className="p-4 user-profile-desc"
         >
           <div className="text-muted">
             <p className="mb-4">
-              "
-              {t(
-                "If several languages coalesce, the grammar of the resulting language is more simple and regular than that of the individual."
-              )}
-              "
+              {props.activeUser.about? props.activeUser.about: "Hey there i am using ConnectUs"}
             </p>
           </div>
 
@@ -159,23 +183,21 @@ const  UserProfileSidebar=(props) =>{
               >
                 <div>
                   <p className="text-muted mb-1">{t("Name")}</p>
-                  <h5 className="font-size-14">{props.activeUser.name}</h5>
+                  <h5 className="font-size-14">{props.activeUser.firstName} {props.activeUser.lastName}</h5>
                 </div>
 
                 <div className="mt-4">
                   <p className="text-muted mb-1">{t("Email")}</p>
                   <h5 className="font-size-14">{props.activeUser.email}</h5>
                 </div>
-
                 <div className="mt-4">
-                  <p className="text-muted mb-1">{t("Time")}</p>
-                  <h5 className="font-size-14">11:40 AM</h5>
+                  <p className="text-muted mb-1">{t("Phone Number")}</p>
+                  <h5 className="font-size-14">{props.activeUser.phoneNumber}</h5>
                 </div>
 
-                <div className="mt-4">
-                  <p className="text-muted mb-1">{t("Location")}</p>
-                  <h5 className="font-size-14 mb-0">California, USA</h5>
-                </div>
+               
+
+                
               </CustomCollapse>
             </Card>
             {/* End About card */}
@@ -278,8 +300,8 @@ const  UserProfileSidebar=(props) =>{
 }
 
 const mapStateToProps = (state) => {
-  const { userOnline,activeTab  } = state.user;
-  return {userOnline, activeTab };
+  const { userOnline,activeTab ,userSideBar } = state.user;
+  return {userOnline, activeTab ,userSideBar};
 };
 
 export default connect(mapStateToProps)(

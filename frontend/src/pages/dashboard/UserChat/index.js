@@ -10,6 +10,7 @@ import {
   CardBody,
   Button,
   ModalFooter,
+
 } from "reactstrap";
 import { connect, useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
@@ -25,13 +26,14 @@ import UserHead from "./UserHead";
 import ImageList from "./ImageList";
 import ChatInput from "./ChatInput";
 import FileList from "./FileList";
+import Offcanvas from 'react-bootstrap/Offcanvas';
 
 //actions
 
 //i18n
 import { useTranslation } from "react-i18next";
 import { socket } from "../../../helpers/socket";
-import { userChats } from "../../../redux/slice.auth";
+import { userChats, usersetSideBar } from "../../../redux/slice.auth";
 import config from "../../../config";
 import { format } from "date-fns";
 import API from "../../../helpers/api";
@@ -48,6 +50,7 @@ const UserChat = (props) => {
 
   const [chatMessages, setchatMessages] = useState([]);
   const [updateMsg, setUpdateMsg] = useState(false);
+  const [show, setShow] = useState(props.userSideBar);
   const apiInstance = new API();
   const token = useSelector((state) => state.user.token);
   const setMessageData = (data) => {
@@ -86,15 +89,13 @@ const UserChat = (props) => {
     setchatMessages(props.chats);
   };
 
-  const handleSeen = () =>{
+  const handleSeen = () => {
     console.log("seeeeeeeeeeeeeeeen");
     setUpdateMsg(true);
     setTimeout(() => {
       setUpdateMsg(false);
     }, 1000);
-
-
-  }
+  };
   // Generate a UUID
   function generateMessageId() {
     return uuidv4();
@@ -113,23 +114,22 @@ const UserChat = (props) => {
     }
     socket.on("user_message_data", setMessageData);
 
-    socket.on("message_seen",handleSeen);
+    socket.on("message_seen", handleSeen);
     return () => {
       socket.off("fetch_message");
       socket.off("user_message_data");
       socket.off("message");
       socket.off("updatePage");
-      socket.off("message_seen")
+      socket.off("message_seen");
     };
   }, [props.activeChat?.id, updateMsg]);
 
-  // useEffect(()=>{
-  //   dispatch(
-  //       userChats({
-  //         chats: chatMessages,
-  //       })
-  //     );
-  // },[dispatch,chatMessages])
+  useEffect(()=>{
+    console.log("trueeeeeeeee")
+    if(props.userSideBar==true){
+      setShow(true)
+    }
+  },[props.userSideBar])
 
   useEffect(() => {
     fetchChats();
@@ -193,9 +193,13 @@ const UserChat = (props) => {
 
     //add message object to chat
     if (type === "textMessage") {
-      let response = await socket.emitWithAck("message_send", messageObj, props.activeChat.id);
-      if(response.seen){
-        messageObj.seen = response.seen
+      let response = await socket.emitWithAck(
+        "message_send",
+        messageObj,
+        props.activeChat.id
+      );
+      if (response.seen) {
+        messageObj.seen = response.seen;
       }
     } else {
       console.log("testing of message", messageObj);
@@ -279,10 +283,17 @@ const UserChat = (props) => {
     }
   };
 
+  const handleClose = () => {
+    setShow(false);
+    dispatch(usersetSideBar({
+      userSideBar:false
+    }))
+  };
+
   return (
     <div className="user-chat w-100">
       <div className="d-lg-flex">
-        <div className={props.userSideBar ? "w-70" : "w-100"}>
+        <div className={"w-100"}>
           {/* render user head */}
           <UserHead />
 
@@ -639,17 +650,28 @@ const UserChat = (props) => {
           )}
         </div>
 
+        {/* {props.userSideBar && 
         <UserProfileSidebar
           activeUser={props.activeChat}
         />
+} */}
+        <Offcanvas show={show} onHide={handleClose} placement="end" backdrop={false}>
+          <Offcanvas.Header closeButton>
+            <Offcanvas.Title>Contact Info</Offcanvas.Title>
+          </Offcanvas.Header>
+          <Offcanvas.Body>
+            {/* <h2 className={"z-4 px-2 mx-2"} >Testing</h2> */}
+            <UserProfileSidebar activeUser={props.activeChat} />
+          </Offcanvas.Body>
+        </Offcanvas>
       </div>
     </div>
   );
 };
 
 const mapStateToProps = (state) => {
-  const { userOnline, user, activeChat, chats,userSideBar } = state.user;
-  return { userOnline, user, activeChat, chats ,userSideBar};
+  const { userOnline, user, activeChat, chats, userSideBar } = state.user;
+  return { userOnline, user, activeChat, chats, userSideBar };
 };
 
 export default withRouter(connect(mapStateToProps)(UserChat));

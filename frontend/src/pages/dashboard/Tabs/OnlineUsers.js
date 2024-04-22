@@ -8,7 +8,8 @@ import "react-alice-carousel/lib/alice-carousel.css";
 
 import { socket } from "../../../helpers/socket";
 import OnlineUserItem from "../../../components/onlineUserItem";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { userList } from "../../../redux/slice.auth";
 
 const OnlineUsers = () => {
   const responsive = {
@@ -18,11 +19,14 @@ const OnlineUsers = () => {
   const [onlineUser,setOnlineUsers] = useState(null);
   const userID = useSelector((state)=>state.user.user)
   const connectedUsers = useSelector((state)=>state.user.connectedUsers)
-  
+  const dispatch = useDispatch()
   function broadCastOnline(data){
     console.log("broadCastOnline",data)
     const connectedUserIds = connectedUsers.map(user => user.id);
     const filteredData = data.filter(user => connectedUserIds.includes(user));
+    dispatch(userList({
+      userOnline:filteredData
+    }))
     setOnlineUsers(filteredData)
   }
 

@@ -24,6 +24,7 @@
     "node-sass": "^8.0.0",
     "react": "^18.2.0",
     "react-alice-carousel": "^2.7.0",
+    "react-bootstrap": "^2.10.2",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
     "react-i18next": "^12.2.0",
