@@ -204,7 +204,7 @@ const Index = ({ userOnline, activeChat }) => {
   }, [inviteAccepted]);
 
   useEffect(()=>{
-    if(activeChat.id){
+    if(activeChat?.id){
     socket.emit("is_connected_with",activeChat.id)
     socket.emit("seen_msg",activeChat.id,user.id)
     }

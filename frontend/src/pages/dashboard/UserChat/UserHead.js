@@ -17,7 +17,7 @@ import { connect, useDispatch } from "react-redux";
 //import images
 import config from "../../../config";
 import { socket } from "../../../helpers/socket";
-import { userConnectedAudio, userConnectedVideo } from "../../../redux/slice.auth";
+import { userActiveTab, userConnectedAudio, userConnectedVideo, usersetSideBar } from "../../../redux/slice.auth";
 
 const UserHead = (props) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -32,7 +32,10 @@ const UserHead = (props) => {
   console.log("rrrrrrrrrrrr",props.activeChat)
   const openUserSidebar = (e) => {
     e.preventDefault();
-    props.openUserSidebar();
+    console.log("trueeeeeeee")
+    dispatch(usersetSideBar({
+      userSideBar : true
+    }))
   };
 
   const closeUserChat=(e) =>{

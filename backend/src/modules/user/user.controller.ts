@@ -48,6 +48,20 @@ class UserController {
     }
   }
 
+  public async isToken(req: Request, res: Response) {
+    try {
+      
+      return HelperResponse.sendSuccess(
+        res,
+        HelperResponse.createResponse(200, "Token Validated",{result:{sucesss:true}})
+      );
+    } catch (error: unknown) {
+      return HelperResponse.sendError(res, {
+        message: String(error) || ResMsg.errors.SOMETHING_WENT_WRONG,
+      });
+    }
+  }
+
   /**
    * @function updateUser
    * @param req

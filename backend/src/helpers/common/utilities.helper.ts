@@ -31,6 +31,10 @@ class Utilities {
             algorithm: "HS256",
             issuer: "xrpayment",
             expiresIn: 2 * 24 * 60 * 60,
+            // expiresIn:10,
+           
+
+
           });
     
           return jwtToken;

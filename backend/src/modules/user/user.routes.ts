@@ -22,6 +22,7 @@ class UserRoutes implements ControllerInterface {
     this.router
       .all(`${this.path}/*`)
       .get(`${this.path}/`,validateToken, UserController.fetchAll)
+      .get(`${this.path}/isTokenValid`,validateToken, UserController.isToken)
       .post(`${this.path}/register`, validateSchema(UserValidator.register), UserController.register)
       .post(`${this.path}/login`, UserController.login)
       .patch(`${this.path}/updateUser`, validateSchema(UserValidator.register),validateToken, UserController.updateUser)

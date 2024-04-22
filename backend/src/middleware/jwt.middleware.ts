@@ -4,6 +4,9 @@ import { CryptoJSEncKey, JWT, } from '../config/config';
 import { IExpressRequest } from '../interfaces/controller.interface';
 import consoleHelper from '../helpers/common/console.helper';
 import * as CryptoJS from 'crypto-js';
+import { Helper } from '../helpers';
+
+const { Response: HelperResponse, ResMsg } = Helper;
  
 // Define an interface for your payload data
 interface EncryptedPayload {
@@ -69,7 +72,10 @@ const validateToken = (req: IExpressRequest, res: express.Response, next: expres
     // Verify and decodeJwt
     decodeJwt(jwtToken, res).then(decodedPayload => {
         if (decodedPayload instanceof Error) {
-            throw res.status(403).json({ message: 'invalid JWT token', error: decodedPayload.message });
+            throw HelperResponse.sendError(res, {
+                message: String(decodedPayload.message) || ResMsg.errors.SOMETHING_WENT_WRONG,
+              });
+            // throw res.status(403).json({ message: 'invalid JWT token', error: decodedPayload.message });
         } else {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const decodedPayloadData: any = decodedPayload
@@ -83,8 +89,9 @@ const validateToken = (req: IExpressRequest, res: express.Response, next: expres
             }
         }
     })
-        .catch(() => {
+        .catch((err) => {
             consoleHelper.error("ERROR in JWT Authentication");
+       
         });
 };
 

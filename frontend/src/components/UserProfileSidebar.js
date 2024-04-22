@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { connect } from "react-redux";
+import { connect, useDispatch } from "react-redux";
 import { Button, Card, Badge } from "reactstrap";
 
 //Simple bar
@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 
 //image
 import avatar7 from "../assets/images/users/avatar-7.jpg";
+import { usersetSideBar } from "../redux/slice.auth";
 
 const  UserProfileSidebar=(props) =>{
   const [isOpen1, setIsOpen1] = useState(true);
@@ -28,6 +29,7 @@ const  UserProfileSidebar=(props) =>{
     { name: "Landing-A.zip", size: "6.7 MB", thumbnail: "ri-file-text-fill" },
   ]);
 
+  const dispatch = useDispatch();
   /* intilize t variable for multi language implementation */
   const { t } = useTranslation();
 
@@ -49,13 +51,19 @@ const  UserProfileSidebar=(props) =>{
     setIsOpen2(false);
   };
 
+  console.log("userrrrrrsidebarrrrrr",props.userSidebar)
   // closes sidebar
   const closeuserSidebar = () => {
     // props.closeUserSidebar();
+    console.log("closing user sidebar")
+    dispatch(usersetSideBar({
+      userSidebar : false,
+    }))
+    
   };
   return (
     <div
-        style={{ display: props.activeTab === "userSideBar" ? "block" : "none" }}
+        style={{ display: props.userSidebar ? "block" : "none" }}
         className="user-profile-sidebar"
       >
         <div className="px-3 px-lg-4 pt-3 pt-lg-4">
@@ -90,7 +98,7 @@ const  UserProfileSidebar=(props) =>{
           </div>
 
           <h5 className="font-size-16 mb-1 text-truncate">
-            {props.activeUser.name}
+            {props.activeUser.firstName} {props.activeUser.lastName} 
           </h5>
           <p className="text-muted text-truncate mb-1">
             {(() => {
@@ -270,8 +278,7 @@ const  UserProfileSidebar=(props) =>{
 }
 
 const mapStateToProps = (state) => {
-  const { userOnline } = state.user;
-  const { activeTab } = state.user;
+  const { userOnline,activeTab  } = state.user;
   return {userOnline, activeTab };
 };
 

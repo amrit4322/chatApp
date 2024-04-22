@@ -282,7 +282,7 @@ const UserChat = (props) => {
   return (
     <div className="user-chat w-100">
       <div className="d-lg-flex">
-        <div className={props.userSidebar ? "w-70" : "w-100"}>
+        <div className={props.userSideBar ? "w-70" : "w-100"}>
           {/* render user head */}
           <UserHead />
 
@@ -639,17 +639,17 @@ const UserChat = (props) => {
           )}
         </div>
 
-        {/* <UserProfileSidebar
-          activeUser={props.recentChatList[props.active_user]}
-        /> */}
+        <UserProfileSidebar
+          activeUser={props.activeChat}
+        />
       </div>
     </div>
   );
 };
 
 const mapStateToProps = (state) => {
-  const { userOnline, user, activeChat, chats } = state.user;
-  return { userOnline, user, activeChat, chats };
+  const { userOnline, user, activeChat, chats,userSideBar } = state.user;
+  return { userOnline, user, activeChat, chats ,userSideBar};
 };
 
 export default withRouter(connect(mapStateToProps)(UserChat));

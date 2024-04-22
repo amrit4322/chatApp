@@ -18,6 +18,7 @@ const initialState = {
   updateInvites:false,
   connectedAudio:false,
   connectedVideo:false,
+  userSideBar:false,
 };
 
 const userSlice = createSlice({
@@ -43,6 +44,9 @@ const userSlice = createSlice({
     },
     userGroups: (state, action) => {
       state.groups = action.payload.groups;
+    },
+    usersetSideBar: (state, action) => {
+      state.userSideBar = action.payload.userSideBar;
     },
     userLayout: (state, action) => {
       state.layout = action.payload.layout;
@@ -104,6 +108,7 @@ const userSlice = createSlice({
       state.updateContacts=false;
       state.connectedAudio= false;
       state.connectedVideo = false;
+      state.userSideBar=false;
     },
   },
 });
@@ -126,7 +131,8 @@ export const {
   userUpdateContacts,
   userUpdateInvites,
   userConnectedAudio,
-  userConnectedVideo
+  userConnectedVideo,
+  usersetSideBar,
 } = userSlice.actions;
 
 export default userSlice.reducer;
